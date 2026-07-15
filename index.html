@@ -28,6 +28,7 @@
   }
   *{box-sizing:border-box; margin:0; padding:0}
   html{-webkit-text-size-adjust:100%}
+  html,body{max-width:100%; overflow-x:hidden}
   body{background:var(--bg); color:var(--text); font-family:var(--body); line-height:1.5; padding-bottom:calc(64px + env(safe-area-inset-bottom))}
   .wrap{max-width:760px; margin:0 auto; padding:0 calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left))}
   header{position:sticky; top:0; z-index:20; background:rgba(14,17,22,.94); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
@@ -134,7 +135,7 @@
   .verdict b{color:var(--amber)}
   /* day status list */
   .dlist{display:grid; gap:7px}
-  .drow{display:flex; align-items:center; gap:10px; background:var(--surface2); border:1px solid var(--line); border-radius:10px; padding:9px 12px}
+  .drow{display:flex; align-items:center; gap:10px; background:var(--surface2); border:1px solid var(--line); border-radius:10px; padding:9px 12px; min-width:0}
   .drow .dn{font-family:var(--disp); font-weight:600; font-size:14px; letter-spacing:.04em; min-width:42px}
   .drow .df{font-size:11.5px; color:var(--muted); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .drow .dbtns{display:flex; gap:5px}
@@ -164,7 +165,7 @@
   .feel-btn:active{transform:scale(.95)}
   /* strategy list */
   .strat{display:grid; gap:9px}
-  .strat-item{display:flex; gap:10px; font-size:12.8px; line-height:1.5; color:var(--muted)}
+  .strat-item{display:flex; gap:10px; font-size:12.8px; line-height:1.5; color:var(--muted); min-width:0}
   .strat-item .si{flex:0 0 auto; font-size:15px; margin-top:1px}
   .strat-item b{color:var(--text)}
   .btn-reset{width:100%; margin-top:2px; background:var(--surface); border:1px solid rgba(255,107,107,.35); color:var(--rose); font-family:var(--disp); font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase; padding:13px; border-radius:12px; cursor:pointer; transition:.15s}
