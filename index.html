@@ -453,9 +453,9 @@ days.forEach(d=>{
     html+=`<div class="check"><span class="check-q">Treinei?</span><div class="check-btns">
       <button class="check-btn yes" data-tr="${d.id}" data-v="yes">Sim</button>
       <button class="check-btn no" data-tr="${d.id}" data-v="no">Não</button></div></div>`;
-    if(d.note){ const rose=d.note.indexOf('⚠')===0; html+=`<div class="legend" style="border-color:${rose?'rgba(255,107,107,.35)':'rgba(139,149,255,.32)'}"><p style="color:${rose?'var(--rose)':'var(--indigo)'};font-weight:600">${d.note}</p></div>`; }
     d.blocks.forEach((bl,bi)=>{ html+=`<div class="block"><div class="block-title">${bl.t}</div>${bl.items.map((it,idx)=>exRow(it, bl.num?idx+1:0, d.id+'-'+bi+'-'+idx)).join('')}</div>`; });
     html+=`<div class="legend"><h4>Como progredir</h4><p><b>Dupla progressão:</b> fechou o topo da faixa de reps em todas as séries → sobe a carga (composto +2,5 a 5 kg · isolado +1 a 2,5 kg) e volta ao fundo da faixa.</p><p><span class="star">definir*</span> = escolha a carga que te deixe 1–2 reps na reserva no topo da faixa.</p></div>`;
+    if(d.note){ const rose=d.note.indexOf('⚠')===0; html+=`<div class="legend" style="border-color:${rose?'rgba(255,107,107,.35)':'rgba(139,149,255,.32)'}"><p style="color:${rose?'var(--rose)':'var(--indigo)'};font-weight:600">${d.note}</p></div>`; }
   }
   sec.innerHTML=html;
   contentEl.appendChild(sec);
