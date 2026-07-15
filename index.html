@@ -247,14 +247,62 @@ const days = [
      {ex:'Pull face',sr:'3×15',carga:'leve',def:true,obs:'Prepara rotadores e posterior de ombro.'},
    ]},
    {t:'Treino',num:true,items:[
-     {ex:'Supino inclinado com halteres',sr:'4×11',carga:'14–16 kg',prog:'4×11 c/16 → 18 kg',mg:'Peito',obs:'Descida controlada ~2s.'},
-     {ex:'Desenvolvimento com halteres',sr:'4×8–10',carga:'12–14 kg',prog:'fechar 4×10 c/14 → 16 kg',mg:'Ombro',obs:'Principal de ombro do dia.'},
-     {ex:'Crucifixo (máquina)',sr:'3×12–15',carga:'40 kg',prog:'fechar 15 → +1 placa',mg:'Peito',obs:'Alongar bem o peitoral.'},
-     {ex:'Elevação lateral polia unilateral',sr:'4×11',carga:'5 kg',prog:'subir p/ 6–7 kg',mg:'Ombro',obs:'Sem usar o trapézio pra subir.'},
-     {ex:'Tríceps na paralela',sr:'3×12',carga:'peso corporal',prog:'passou de 12? add lastro',mg:'Tríceps',obs:'Tronco levemente à frente pra focar tríceps.'},
-     {ex:'Tríceps francês unilateral',sr:'3×12',carga:'~8–9 kg/braço',def:true,mg:'Tríceps',obs:'Unilateral — carga menor por braço.'},
-     {ex:'Tríceps corda',sr:'3×15',carga:'40 kg',prog:'fechar 15 → +1 placa',mg:'Tríceps',obs:'Abrir a corda no fim do movimento.'},
-     {ex:'Tríceps testa',sr:'3×12',carga:'6 kg',prog:'subir ao fechar',mg:'Tríceps',obs:'Não abrir os cotovelos.'},
+     {ex:'Supino inclinado com halteres',sr:'4×11',carga:'14–16 kg',prog:'4×11 c/16 → 18 kg',mg:'Peito',obs:'Descida controlada ~2s.',
+      tips:[
+        '<b>Banco</b> entre 30–45° — mais que isso desloca o foco pro ombro.',
+        '<b>Escápulas retraídas</b> e fixas no banco antes de começar a série.',
+        '<b>Desça</b> até sentir alongar o peitoral, cotovelos a ~45° do tronco.',
+        '<b>Suba</b> juntando levemente os halteres no topo, sem bater um no outro.'
+      ],cref:'Base científica: inclinação de 30–45° mantém o estímulo no peitoral superior sem transferir demais para o deltoide anterior.'},
+     {ex:'Desenvolvimento com halteres',sr:'4×8–10',carga:'12–14 kg',prog:'fechar 4×10 c/14 → 16 kg',mg:'Ombro',obs:'Principal de ombro do dia.',
+      tips:[
+        '<b>Cotovelos</b> alinhados abaixo dos punhos, trajetória levemente em arco.',
+        '<b>Não trave</b> os cotovelos com força no topo do movimento.',
+        '<b>Core contraído</b> o tempo todo pra não arquear a lombar.',
+        '<b>Desça</b> só até onde o ombro ficar confortável — sem forçar amplitude.'
+      ],cref:'Base científica: o desenvolvimento sobrecarrega o manguito rotador; controlar a amplitude reduz risco de impacto no ombro.'},
+     {ex:'Crucifixo (máquina)',sr:'3×12–15',carga:'40 kg',prog:'fechar 15 → +1 placa',mg:'Peito',obs:'Alongar bem o peitoral.',
+      tips:[
+        '<b>Ajuste o banco</b> pra as alças ficarem na altura do peito.',
+        '<b>Cotovelos</b> levemente flexionados e fixos durante todo o movimento.',
+        '<b>Feche</b> em arco, "abraçando", sem bater as alças com força.',
+        '<b>Alongue</b> controlado na abertura, sem forçar o ombro além do confortável.'
+      ],cref:'Base científica: manter leve flexão de cotovelo protege a articulação e mantém a tensão focada no peitoral.'},
+     {ex:'Elevação lateral polia unilateral',sr:'4×11',carga:'5 kg',prog:'subir p/ 6–7 kg',mg:'Ombro',obs:'Sem usar o trapézio pra subir.',
+      tips:[
+        '<b>Polia baixa</b>, cabo cruzando na frente do corpo.',
+        '<b>Eleve</b> lateralmente até a linha do ombro, cotovelo levemente flexionado.',
+        '<b>Sem impulso</b> do tronco — controle também na descida.',
+        '<b>Ombros relaxados</b>, sem "subir" até a orelha durante o movimento.'
+      ],cref:'Base científica: a polia mantém tensão constante em toda a amplitude, diferente do haltere livre que perde tensão no início do movimento.'},
+     {ex:'Tríceps na paralela',sr:'3×12',carga:'peso corporal',prog:'passou de 12? add lastro',mg:'Tríceps',obs:'Tronco levemente à frente pra focar tríceps.',
+      tips:[
+        '<b>Tronco inclinado</b> à frente para enfatizar tríceps (ereto = mais peito).',
+        '<b>Desça</b> até ombro levemente abaixo do cotovelo, sem exagerar.',
+        '<b>Cotovelos</b> próximos ao corpo, sem abrir para os lados.',
+        '<b>Sentiu desconforto</b> no ombro? Reduza a amplitude — não force.'
+      ],cref:'Base científica: amplitude excessiva na paralela aumenta o estresse na cápsula anterior do ombro sem ganho extra pro tríceps.'},
+     {ex:'Tríceps francês unilateral',sr:'3×12',carga:'~8–9 kg/braço',def:true,mg:'Tríceps',obs:'Unilateral — carga menor por braço.',
+      tips:[
+        '<b>Cotovelo fixo</b>, apontando pro teto, próximo à cabeça.',
+        '<b>Desça</b> o halter atrás da cabeça controlado, sem abrir o cotovelo.',
+        '<b>Estenda</b> completo no topo sem travar bruscamente.',
+        '<b>Tronco estável</b> — não compense o movimento com o corpo.'
+      ],cref:'Base científica: manter o cotovelo fixo isola o tríceps e evita perda de tensão ao longo da série.'},
+     {ex:'Tríceps corda',sr:'3×15',carga:'40 kg',prog:'fechar 15 → +1 placa',mg:'Tríceps',obs:'Abrir a corda no fim do movimento.',
+      tips:[
+        '<b>Cotovelos colados</b> ao tronco durante todo o movimento.',
+        '<b>Abra a corda</b> no final para uma contração de pico mais completa.',
+        '<b>Tronco</b> parado — não incline pra frente pra "ajudar" o peso.',
+        '<b>Extensão completa</b> sem travar forte a articulação do cotovelo.'
+      ],cref:'Base científica: a abertura da corda no final aumenta o recrutamento da cabeça lateral do tríceps.'},
+     {ex:'Tríceps testa',sr:'3×12',carga:'6 kg',prog:'subir ao fechar',mg:'Tríceps',obs:'Não abrir os cotovelos.',
+      tips:[
+        '<b>Cotovelos</b> apontando pro teto e fixos durante toda a série.',
+        '<b>Desça</b> a barra em direção à testa/atrás da cabeça, controlado.',
+        '<b>Não abra</b> os cotovelos para os lados — isso "rouba" o tríceps.',
+        '<b>Extensão completa</b> sem hiperestender o cotovelo no topo.'
+      ],cref:'Base científica: cotovelos abertos transferem carga para o ombro e reduzem o estímulo direto no tríceps.'},
    ]},
    {t:'Pós-treino',items:[
      {ex:'Dead bug',sr:'3×10'},
@@ -270,15 +318,69 @@ const days = [
      {ex:'Ativação posterior de ombro (crucifixo c/ miniband)',sr:'3×15',carga:'miniband',def:true,obs:'Ativa o posterior antes de puxar pesado.'},
    ]},
    {t:'Treino',num:true,items:[
-     {ex:'Puxada alta peg. neutra',sr:'4×11',carga:'45 kg',prog:'4×11 c/45 → 50 kg',mg:'Costas',obs:'Puxar com o cotovelo, não com a mão.'},
-     {ex:'Remada cavalinho',sr:'4×11',carga:'definir*',def:true,prog:'carga p/ deixar 1–2 reps reserva',mg:'Costas',obs:'Peito apoiado, retrair escápula.'},
-     {ex:'Remada baixa unilateral na polia',sr:'3×12',carga:'~20 kg/lado',prog:'subir ao fechar',mg:'Costas',obs:'Amplitude total, alonga na frente.'},
-     {ex:'Desenvolvimento na máquina',sr:'3×10',carga:'definir*',def:true,mg:'Ombro',obs:'Complementa o volume de ombro.'},
-     {ex:'Rosca direta barra W',sr:'3×9',carga:'25 kg',prog:'3×9 → 27,5 kg',mg:'Bíceps',obs:'Tronco firme, sem balançar.'},
-     {ex:'Elevação lateral com halteres',sr:'4×11',carga:'~8 kg',def:true,prog:'subir ao fechar',mg:'Ombro',obs:'Sem balançar o tronco.'},
-     {ex:'Rosca martelo corda',sr:'3×12',carga:'35 kg',prog:'subir ao fechar',mg:'Bíceps',obs:'Pega neutra, trabalha braquial.'},
-     {ex:'Rosca Scott',sr:'3×7',carga:'60 kg',prog:'fechar 7 → subir',mg:'Bíceps',obs:'Faixa pesada — controle na descida.'},
-     {ex:'Crucifixo inverso',sr:'4×15',carga:'10 kg',prog:'fechar 15 → +peso',mg:'Ombro',obs:'Posterior de ombro.'},
+     {ex:'Puxada alta peg. neutra',sr:'4×11',carga:'45 kg',prog:'4×11 c/45 → 50 kg',mg:'Costas',obs:'Puxar com o cotovelo, não com a mão.',
+      tips:[
+        '<b>Cotovelo guia</b> o movimento: puxe levando cotovelos pra baixo e pra trás.',
+        '<b>Leve inclinação</b> do tronco pra trás (~10–20°), sem balançar o corpo.',
+        '<b>Desça</b> a barra até a altura do peito superior.',
+        '<b>Controle a subida</b> (fase excêntrica) — não solte o peso de volta.'
+      ],cref:'Base científica: iniciar o movimento retraindo a escápula antes de flexionar o cotovelo ativa mais o latíssimo do dorso.'},
+     {ex:'Remada cavalinho',sr:'4×11',carga:'definir*',def:true,prog:'carga p/ deixar 1–2 reps reserva',mg:'Costas',obs:'Peito apoiado, retrair escápula.',
+      tips:[
+        '<b>Peito bem apoiado</b> no banco — evita compensar com a lombar.',
+        '<b>Retraia as escápulas</b> antes de flexionar os cotovelos.',
+        '<b>Cotovelos</b> próximos ao tronco, puxando em direção ao abdômen.',
+        '<b>Pausa breve</b> no ponto de contração máxima.'
+      ],cref:'Base científica: o apoio do peito remove a exigência de estabilização lombar, isolando o trabalho nas costas.'},
+     {ex:'Remada baixa unilateral na polia',sr:'3×12',carga:'~20 kg/lado',prog:'subir ao fechar',mg:'Costas',obs:'Amplitude total, alonga na frente.',
+      tips:[
+        '<b>Tronco estável</b>, sem rotacionar durante a puxada.',
+        '<b>Puxe o cotovelo</b> pra trás, próximo ao corpo.',
+        '<b>Amplitude total:</b> alongue bem na frente antes de puxar.',
+        '<b>Sem impulso</b> do quadril pra "ajudar" o movimento.'
+      ],cref:'Base científica: o trabalho unilateral exige mais controle de core — manter o tronco quadrado evita compensações.'},
+     {ex:'Desenvolvimento na máquina',sr:'3×10',carga:'definir*',def:true,mg:'Ombro',obs:'Complementa o volume de ombro.',
+      tips:[
+        '<b>Costas e cabeça</b> apoiadas no encosto durante toda a série.',
+        '<b>Não trave</b> os cotovelos com força no topo.',
+        '<b>Desça</b> controlado até os ombros em ~90°.',
+        '<b>Pegada</b> na linha dos ombros — nem muito aberta nem muito fechada.'
+      ],cref:'Base científica: a máquina guia a trajetória e reduz a demanda estabilizadora, permitindo focar na execução controlada.'},
+     {ex:'Rosca direta barra W',sr:'3×9',carga:'25 kg',prog:'3×9 → 27,5 kg',mg:'Bíceps',obs:'Tronco firme, sem balançar.',
+      tips:[
+        '<b>Cotovelos fixos</b> ao lado do tronco, sem "balançar" pra levantar.',
+        '<b>Pegada na barra W</b> reduz o estresse no punho vs. barra reta.',
+        '<b>Subida e descida</b> controladas, sem impulso do quadril.',
+        '<b>Contração no topo</b> sem hiperflexionar o punho.'
+      ],cref:'Base científica: a angulação da barra W posiciona o antebraço numa curva mais neutra, poupando a articulação do punho.'},
+     {ex:'Elevação lateral com halteres',sr:'4×11',carga:'~8 kg',def:true,prog:'subir ao fechar',mg:'Ombro',obs:'Sem balançar o tronco.',
+      tips:[
+        '<b>Cotovelos</b> levemente flexionados, como "servindo uma jarra".',
+        '<b>Suba</b> até a altura do ombro, sem passar muito disso.',
+        '<b>Sem impulso</b> do tronco ou balanço pra ajudar a subir.',
+        '<b>Descida controlada</b> — é onde mais se ganha estímulo.'
+      ],cref:'Base científica: elevar acima da linha do ombro aumenta o risco de impacto (impingement) sem ganho adicional de estímulo.'},
+     {ex:'Rosca martelo corda',sr:'3×12',carga:'35 kg',prog:'subir ao fechar',mg:'Bíceps',obs:'Pega neutra, trabalha braquial.',
+      tips:[
+        '<b>Pegada neutra</b> (palmas se olhando) durante todo o movimento.',
+        '<b>Cotovelos fixos</b> junto ao tronco.',
+        '<b>Recruta</b> braquial e antebraço além do bíceps.',
+        '<b>Controle a descida</b>, sem deixar o peso cair.'
+      ],cref:'Base científica: a pegada neutra ativa mais o braquial, contribuindo pra espessura do braço junto com o bíceps.'},
+     {ex:'Rosca Scott',sr:'3×7',carga:'60 kg',prog:'fechar 7 → subir',mg:'Bíceps',obs:'Faixa pesada — controle na descida.',
+      tips:[
+        '<b>Axila apoiada</b> no topo do banco — o braço não desliza.',
+        '<b>Não estenda</b> o cotovelo com força total (trava) no fundo.',
+        '<b>Contração de pico</b> no topo sem tirar a axila do apoio.',
+        '<b>Descida controlada</b>, principalmente nessa faixa mais pesada.'
+      ],cref:'Base científica: o apoio no banco Scott elimina o balanço do tronco, isolando o bíceps quase por completo.'},
+     {ex:'Crucifixo inverso',sr:'4×15',carga:'10 kg',prog:'fechar 15 → +peso',mg:'Ombro',obs:'Posterior de ombro.',
+      tips:[
+        '<b>Leve flexão</b> de tronco à frente, cotovelos levemente flexionados.',
+        '<b>Puxe pensando</b> em juntar as escápulas, não só levantar os braços.',
+        '<b>Ombros</b> não sobem até a orelha — evite trapézio em excesso.',
+        '<b>Controle a descida</b>, sem deixar o peso cair.'
+      ],cref:'Base científica: fortalece o posterior de ombro, equilibrando o volume anterior gerado pelos exercícios de empurrar.'},
    ]},
    {t:'Pós-treino',items:[
      {ex:'Abdominal com rolo',sr:'3×10'},
@@ -373,16 +475,76 @@ const days = [
   note:'⚠ Sugestão do estrategista: troque 1–2 exercícios de tríceps por 1 puxada + 1 remada — corta o excesso de braço e adiciona costas.',
   blocks:[
    {t:'Treino',num:true,items:[
-     {ex:'Desenvolvimento com halteres',sr:'4×9',carga:'12–14 kg',prog:'consolidar 14 → 16 kg',mg:'Ombro',obs:'Ombro.'},
-     {ex:'Rosca direta com halteres',sr:'4×11',carga:'definir*',def:true,mg:'Bíceps',obs:'Carga por halter — deixa 1–2 reps na reserva.'},
-     {ex:'Elevação lateral máquina',sr:'4×15',carga:'5 kg',prog:'fechar 15 → subir',mg:'Ombro',obs:'Deltóide medial, volume alto.'},
-     {ex:'Rosca martelo corda',sr:'3×15',carga:'35 kg',mg:'Bíceps'},
-     {ex:'Rosca Scott',sr:'3×12',carga:'60 kg',mg:'Bíceps'},
-     {ex:'Crucifixo inverso',sr:'4×15',carga:'10 kg',mg:'Ombro',obs:'Posterior de ombro.'},
-     {ex:'Tríceps corda',sr:'4×15',carga:'40 kg',mg:'Tríceps'},
-     {ex:'Elevação lateral inclinada',sr:'4×12',carga:'10 kg',prog:'subir ao fechar',mg:'Ombro',obs:'Deltóide em alongamento.'},
-     {ex:'Tríceps francês',sr:'4×12',carga:'16–18 kg',mg:'Tríceps'},
-     {ex:'Tríceps testa',sr:'3×12',carga:'6 kg',mg:'Tríceps'},
+     {ex:'Desenvolvimento com halteres',sr:'4×9',carga:'12–14 kg',prog:'consolidar 14 → 16 kg',mg:'Ombro',obs:'Ombro.',
+      tips:[
+        '<b>Cotovelos</b> alinhados abaixo dos punhos, trajetória levemente em arco.',
+        '<b>Não trave</b> os cotovelos com força no topo do movimento.',
+        '<b>Core contraído</b> o tempo todo pra não arquear a lombar.',
+        '<b>Desça</b> só até onde o ombro ficar confortável — sem forçar amplitude.'
+      ],cref:'Base científica: o desenvolvimento sobrecarrega o manguito rotador; controlar a amplitude reduz risco de impacto no ombro.'},
+     {ex:'Rosca direta com halteres',sr:'4×11',carga:'definir*',def:true,mg:'Bíceps',obs:'Carga por halter — deixa 1–2 reps na reserva.',
+      tips:[
+        '<b>Cotovelos fixos</b> ao lado do corpo, sem empurrar pra frente.',
+        '<b>Gire o punho</b> (supinação) ao subir, se a pegada partir neutra.',
+        '<b>Sem impulso</b> do quadril/tronco pra "ajudar" a subir.',
+        '<b>Descida controlada</b>, mais lenta que a subida.'
+      ],cref:'Base científica: controlar a fase excêntrica (descida) é onde ocorre boa parte do estímulo de crescimento do bíceps.'},
+     {ex:'Elevação lateral máquina',sr:'4×15',carga:'5 kg',prog:'fechar 15 → subir',mg:'Ombro',obs:'Deltóide medial, volume alto.',
+      tips:[
+        '<b>Ajuste o eixo</b> da máquina na altura do ombro.',
+        '<b>Suba</b> até a linha do ombro, sem ultrapassar muito.',
+        '<b>Controle</b> tanto a subida quanto a descida.',
+        '<b>Cotovelos</b> levemente flexionados durante todo o movimento.'
+      ],cref:'Base científica: a máquina permite volume alto com menos fadiga estabilizadora do que o haltere livre.'},
+     {ex:'Rosca martelo corda',sr:'3×15',carga:'35 kg',mg:'Bíceps',
+      tips:[
+        '<b>Pegada neutra</b> (palmas se olhando) durante todo o movimento.',
+        '<b>Cotovelos fixos</b> junto ao tronco.',
+        '<b>Recruta</b> braquial e antebraço além do bíceps.',
+        '<b>Controle a descida</b>, sem deixar o peso cair.'
+      ],cref:'Base científica: a pegada neutra ativa mais o braquial, contribuindo pra espessura do braço junto com o bíceps.'},
+     {ex:'Rosca Scott',sr:'3×12',carga:'60 kg',mg:'Bíceps',
+      tips:[
+        '<b>Axila apoiada</b> no topo do banco — o braço não desliza.',
+        '<b>Não estenda</b> o cotovelo com força total (trava) no fundo.',
+        '<b>Contração de pico</b> no topo sem tirar a axila do apoio.',
+        '<b>Descida controlada</b>, sem deixar o peso cair solto.'
+      ],cref:'Base científica: o apoio no banco Scott elimina o balanço do tronco, isolando o bíceps quase por completo.'},
+     {ex:'Crucifixo inverso',sr:'4×15',carga:'10 kg',mg:'Ombro',obs:'Posterior de ombro.',
+      tips:[
+        '<b>Leve flexão</b> de tronco à frente, cotovelos levemente flexionados.',
+        '<b>Puxe pensando</b> em juntar as escápulas, não só levantar os braços.',
+        '<b>Ombros</b> não sobem até a orelha — evite trapézio em excesso.',
+        '<b>Controle a descida</b>, sem deixar o peso cair.'
+      ],cref:'Base científica: fortalece o posterior de ombro, equilibrando o volume anterior gerado pelos exercícios de empurrar.'},
+     {ex:'Tríceps corda',sr:'4×15',carga:'40 kg',mg:'Tríceps',
+      tips:[
+        '<b>Cotovelos colados</b> ao tronco durante todo o movimento.',
+        '<b>Abra a corda</b> no final para uma contração de pico mais completa.',
+        '<b>Tronco</b> parado — não incline pra frente pra "ajudar" o peso.',
+        '<b>Extensão completa</b> sem travar forte a articulação do cotovelo.'
+      ],cref:'Base científica: a abertura da corda no final aumenta o recrutamento da cabeça lateral do tríceps.'},
+     {ex:'Elevação lateral inclinada',sr:'4×12',carga:'10 kg',prog:'subir ao fechar',mg:'Ombro',obs:'Deltóide em alongamento.',
+      tips:[
+        '<b>Deitado de lado</b> no banco inclinado, braço parte alongado abaixo do corpo.',
+        '<b>Suba</b> controlado até a linha do ombro.',
+        '<b>Cotovelo</b> levemente flexionado e fixo durante o movimento.',
+        '<b>Enfatize</b> a fase de alongamento no início — não acelere essa parte.'
+      ],cref:'Base científica: iniciar o movimento em posição alongada aumenta o estímulo de hipertrofia no deltoide medial.'},
+     {ex:'Tríceps francês',sr:'4×12',carga:'16–18 kg',mg:'Tríceps',
+      tips:[
+        '<b>Cotovelos fixos</b>, apontando pro teto, próximos à cabeça.',
+        '<b>Desça</b> controlado atrás da cabeça, sem abrir os cotovelos.',
+        '<b>Estenda</b> completo no topo sem travar bruscamente.',
+        '<b>Tronco estável</b> — não use o corpo de impulso.'
+      ],cref:'Base científica: manter o cotovelo fixo isola o tríceps e evita perda de tensão ao longo da série.'},
+     {ex:'Tríceps testa',sr:'3×12',carga:'6 kg',mg:'Tríceps',
+      tips:[
+        '<b>Cotovelos</b> apontando pro teto e fixos durante toda a série.',
+        '<b>Desça</b> a barra em direção à testa/atrás da cabeça, controlado.',
+        '<b>Não abra</b> os cotovelos para os lados — isso "rouba" o tríceps.',
+        '<b>Extensão completa</b> sem hiperestender o cotovelo no topo.'
+      ],cref:'Base científica: cotovelos abertos transferem carga para o ombro e reduzem o estímulo direto no tríceps.'},
    ]},
    {t:'Pós-treino',items:[
      {ex:'Vacuum abdominal',sr:'3×30s'},
