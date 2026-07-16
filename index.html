@@ -796,10 +796,22 @@ updateDots();
 renderGeral();
 </script>
 <script>
-/* Registro do Service Worker — habilita instalação e uso offline */
+/* Registro do Service Worker — habilita instalação e uso offline.
+   Auto-atualiza: quando um SW novo assume o controle, recarrega 1x
+   para o app instalado sempre exibir a versão mais recente. */
 if('serviceWorker' in navigator){
+  // Só recarrega numa atualização real (já havia um SW no controle),
+  // nunca no primeiro acesso (quando o clients.claim inicial assume).
+  const hadController = !!navigator.serviceWorker.controller;
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+    if(refreshing || !hadController) return; refreshing=true; window.location.reload();
+  });
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js', {scope:'./'}).catch(err=>console.warn('SW falhou:', err));
+    navigator.serviceWorker.register('./sw.js', {scope:'./'}).then(reg=>{
+      // O SW já faz self.skipWaiting()+clients.claim(); só forçamos a checagem.
+      reg.update && reg.update();
+    }).catch(err=>console.warn('SW falhou:', err));
   });
 }
 </script>

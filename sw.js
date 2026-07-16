@@ -2,7 +2,7 @@
    - Precache do app shell (offline-first)
    - Runtime cache das fontes do Google (Oswald/Inter) para funcionar offline
    Bump CACHE_VERSION a cada alteração de assets para forçar atualização. */
-const CACHE_VERSION = 'focus-v1';
+const CACHE_VERSION = 'focus-v3';
 const SHELL_CACHE = CACHE_VERSION + '-shell';
 const FONT_CACHE  = CACHE_VERSION + '-fonts';
 
