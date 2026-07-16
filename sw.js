@@ -2,7 +2,7 @@
    - Precache do app shell (offline-first)
    - Runtime cache das fontes do Google (Oswald/Inter) para funcionar offline
    Bump CACHE_VERSION a cada alteração de assets para forçar atualização. */
-const CACHE_VERSION = 'focus-v3';
+const CACHE_VERSION = 'focus-v4';
 const SHELL_CACHE = CACHE_VERSION + '-shell';
 const FONT_CACHE  = CACHE_VERSION + '-fonts';
 
@@ -39,23 +39,41 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Fontes do Google → cache-first, guarda para uso offline
+  // Fontes do Google → cache-first, guarda para uso offline.
+  // Nunca resolve pra undefined: sem hit e sem rede, deixa a falha se propagar
+  // (senão o navegador fica esperando pra sempre uma resposta que não vem).
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(
       caches.open(FONT_CACHE).then(cache =>
-        cache.match(req).then(hit => hit || fetch(req).then(res => {
-          if (res && res.status === 200) cache.put(req, res.clone());
-          return res;
-        }).catch(() => hit))
+        cache.match(req).then(hit => {
+          if (hit) return hit;
+          return fetch(req).then(res => {
+            if (res && res.status === 200) cache.put(req, res.clone());
+            return res;
+          });
+        })
       )
     );
     return;
   }
 
-  // Navegações → network-first, cai para o index em cache quando offline
+  // Navegações → cache primeiro (abre instantâneo), atualiza em segundo plano.
+  // A troca de versão do SW (CACHE_VERSION) já recarrega a página quando há
+  // atualização de fato — então servir do cache aqui nunca deixa o app "preso"
+  // numa versão velha, só evita esperar a rede toda vez que o app abre.
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
+      caches.match('./index.html').then(cached => {
+        if (cached) {
+          // atualiza o cache em segundo plano; nunca deixa a rejeição escapar
+          fetch(req).then(res => {
+            if (res && res.status === 200) caches.open(SHELL_CACHE).then(c => c.put('./index.html', res.clone()));
+          }).catch(() => {});
+          return cached;
+        }
+        // nada em cache ainda (1ª visita offline) — só a rede pode responder
+        return fetch(req);
+      })
     );
     return;
   }
@@ -63,13 +81,16 @@ self.addEventListener('fetch', event => {
   // Mesma origem (assets) → cache-first com atualização em background
   if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.match(req).then(hit => hit || fetch(req).then(res => {
-        if (res && res.status === 200 && res.type === 'basic') {
-          const copy = res.clone();
-          caches.open(SHELL_CACHE).then(c => c.put(req, copy));
-        }
-        return res;
-      }).catch(() => hit))
+      caches.match(req).then(hit => {
+        if (hit) return hit;
+        return fetch(req).then(res => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            const copy = res.clone();
+            caches.open(SHELL_CACHE).then(c => c.put(req, copy));
+          }
+          return res;
+        });
+      })
     );
   }
 });

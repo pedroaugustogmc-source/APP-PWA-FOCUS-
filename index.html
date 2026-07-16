@@ -17,7 +17,10 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Fontes carregadas sem bloquear a renderização: a página pinta na hora com a
+     fonte do sistema e troca pra Oswald/Inter assim que elas chegarem. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
 <style>
   :root{
     --bg:#0E1116; --surface:#161A22; --surface2:#1E232E; --line:#2A303C;
