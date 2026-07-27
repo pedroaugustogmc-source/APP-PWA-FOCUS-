@@ -60,8 +60,13 @@
   .block{margin:18px 0}
   .block-title{font-family:var(--disp); font-weight:600; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:8px; margin-bottom:9px}
   .block-title::after{content:""; flex:1; height:1px; background:var(--line)}
-  .ex{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:12px 13px; margin-bottom:8px; display:flex; gap:11px; align-items:flex-start}
+  .ex{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:12px 13px; margin-bottom:8px; display:flex; gap:11px; align-items:flex-start; transition:.15s}
+  .ex.done{border-color:rgba(74,222,128,.35); background:rgba(74,222,128,.06)}
+  .ex.done .ex-body{opacity:.72}
   .num{font-family:var(--disp); font-weight:600; font-size:14px; color:var(--amber); background:var(--surface2); border:1px solid var(--line); min-width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; margin-top:1px}
+  .ex-check{flex:0 0 auto; width:26px; height:26px; border-radius:7px; border:1px solid var(--line); background:var(--surface2); color:transparent; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:1px; padding:0; transition:.15s}
+  .ex-check:active{transform:scale(.9)}
+  .ex-check.done{background:var(--green); border-color:var(--green); color:#08210f}
   .ex-body{flex:1; min-width:0}
   .ex-name{font-weight:600; font-size:15px; letter-spacing:-.01em}
   .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px}
@@ -152,8 +157,8 @@
   .mrow-top .mn{font-size:12.5px; font-weight:600}
   .mrow-top .mv{font-family:var(--disp); font-size:13px; font-weight:600; color:var(--muted)}
   .mrow-top .mv b{color:var(--text)}
-  .mbar{height:8px; border-radius:5px; background:var(--surface2); overflow:hidden}
-  .mbar span{display:block; height:100%; border-radius:5px}
+  .mbar{height:8px; border-radius:5px; background:var(--surface2); overflow:hidden; position:relative}
+  .mbar span{position:absolute; top:0; left:0; height:100%; border-radius:5px; display:block}
   .mtag{font-size:9px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:2px 6px; border-radius:5px; margin-left:6px}
   .mtag.low{background:rgba(255,107,107,.15); color:var(--rose)}
   .mtag.high{background:rgba(255,176,32,.15); color:var(--amber)}
@@ -204,10 +209,12 @@ const LS = {
   setLoad:(k,v)=> localStorage.setItem('load:'+k, v),
   trained:  d => localStorage.getItem('trained:'+d),      // 'yes' | 'no' | null
   setTrained:(d,v)=> v? localStorage.setItem('trained:'+d, v) : localStorage.removeItem('trained:'+d),
+  done:  k => localStorage.getItem('done:'+k)==='1',      // exercício individual feito?
+  setDone:(k,v)=> v? localStorage.setItem('done:'+k,'1') : localStorage.removeItem('done:'+k),
   feel:  ()=> localStorage.getItem('feel:week'),
   setFeel:v=> v? localStorage.setItem('feel:week', v) : localStorage.removeItem('feel:week'),
-  resetWeek(){ // zera SÓ o checklist e a sensação — mantém as cargas
-    Object.keys(localStorage).forEach(k=>{ if(k.startsWith('trained:')||k==='feel:week') localStorage.removeItem(k); });
+  resetWeek(){ // zera SÓ o checklist (dia + exercícios) e a sensação — mantém as cargas
+    Object.keys(localStorage).forEach(k=>{ if(k.startsWith('trained:')||k.startsWith('done:')||k==='feel:week') localStorage.removeItem(k); });
   }
 };
 
@@ -238,7 +245,9 @@ function exRow(e,n,key){
   if(e.tips){
     tips = `<details class="tips"><summary>Como fazer certo</summary><ul>${e.tips.map(t=>`<li>${t}</li>`).join('')}</ul>${e.cref?`<div class="cref">${e.cref}</div>`:''}</details>`;
   }
-  return `<div class="ex">${num}<div class="ex-body"><div class="ex-name">${e.ex}</div><div class="chips">${chips}</div>${e.obs?`<div class="obs">${e.obs}</div>`:''}${tips}</div></div>`;
+  const isDone = LS.done(key);
+  const check = `<button class="ex-check${isDone?' done':''}" data-exdone="${key}" type="button" aria-label="Marcar ${e.ex.replace(/"/g,'&quot;')} como feito">✓</button>`;
+  return `<div class="ex${isDone?' done':''}" data-exwrap="${key}">${check}${num}<div class="ex-body"><div class="ex-name">${e.ex}</div><div class="chips">${chips}</div>${e.obs?`<div class="obs">${e.obs}</div>`:''}${tips}</div></div>`;
 }
 
 const days = [
@@ -580,6 +589,31 @@ function muscleVolume(){
 const MG_REF={min:10,max:20};
 const MG_COLOR={Peito:'#FF8FA3',Costas:'#8B95FF',Ombro:'#FFB020',Bíceps:'#2FD3B8',Tríceps:'#4ADE80',Pernas:'#7EE0FF'};
 
+// todo item de todo bloco de um dia, com sua key única (mesma usada no checkbox)
+function dayExerciseItems(d){
+  const out=[];
+  d.blocks.forEach((bl,bi)=> bl.items.forEach((it,idx)=> out.push({key:d.id+'-'+bi+'-'+idx, sr:it.sr, mg:it.mg, main:!!bl.num})));
+  return out;
+}
+// estatísticas do que foi REALMENTE marcado como feito (exercício a exercício)
+function doneStats(){
+  let doneCount=0, totalCount=0, doneSets=0;
+  const doneMv={}, perDay={};
+  trainingDays.forEach(d=>{
+    const items = dayExerciseItems(d);
+    let dDone=0;
+    items.forEach(it=>{
+      totalCount++;
+      if(LS.done(it.key)){
+        doneCount++; dDone++;
+        if(it.main){ doneSets += setsOf(it.sr); if(it.mg) doneMv[it.mg]=(doneMv[it.mg]||0)+setsOf(it.sr); }
+      }
+    });
+    perDay[d.id] = { done:dDone, total:items.length };
+  });
+  return { doneCount, totalCount, doneSets, doneMv, perDay };
+}
+
 /* ============================================================
    Render das abas
    ============================================================ */
@@ -636,7 +670,8 @@ function renderGeral(){
   const doneDays = trainingDays.filter(d=>LS.trained(d.id)==='yes');
   const done = doneDays.length, total = trainingDays.length;
   const pct = Math.round(done/total*100);
-  const doneSets = doneDays.reduce((s,d)=>s+daySets(d),0);
+  const ds = doneStats();
+  const doneSets = ds.doneSets;
   const feel = LS.feel();
   const fd = feelData();
 
@@ -651,23 +686,31 @@ function renderGeral(){
   else { vword='Muito alto'; verdict='Programa completo — carga sistêmica elevada. Observe sinais de excesso: sono ruim, cargas caindo, ânimo baixo.'; }
   if(feel==='5'||feel==='4'){ verdict+=' Sua sensação indica fadiga acumulada — considere uma sessão mais leve ou um dia extra de descanso.'; }
 
-  // volume por grupo muscular
+  // volume por grupo muscular — planejado vs. o que foi de fato marcado como feito
   const mv=muscleVolume();
   const order=['Ombro','Tríceps','Pernas','Bíceps','Costas','Peito'];
   const maxV=Math.max(...Object.values(mv));
   const mbars=order.map(g=>{
     const v=mv[g]||0; const w=Math.round(v/maxV*100);
+    const dv=ds.doneMv[g]||0; const dw=v? Math.round(Math.min(dv,v)/maxV*100) : 0;
     let tag='ok', tw='Ideal';
     if(v>MG_REF.max){ tag='high'; tw='Alto'; } else if(v<MG_REF.min){ tag='low'; tw='Baixo'; }
-    return `<div class="mrow"><div class="mrow-top"><span class="mn">${g}<span class="mtag ${tag}">${tw}</span></span><span class="mv"><b>${v}</b> séries/sem</span></div><div class="mbar"><span style="width:${w}%;background:${MG_COLOR[g]}"></span></div></div>`;
+    return `<div class="mrow"><div class="mrow-top"><span class="mn">${g}<span class="mtag ${tag}">${tw}</span></span><span class="mv"><b>${dv}</b>/${v} séries/sem</span></div><div class="mbar"><span style="width:${w}%;background:${MG_COLOR[g]};opacity:.28"></span><span style="width:${dw}%;background:${MG_COLOR[g]}"></span></div></div>`;
   }).join('');
 
-  // status por dia
+  // status por dia (treinei sim/não + progresso de exercícios marcados)
   const dlist=trainingDays.map(d=>{
     const st=LS.trained(d.id);
-    return `<div class="drow"><span class="dn">${d.tab}</span><span class="df">${d.focus}</span><div class="dbtns">
+    const dd=ds.perDay[d.id];
+    return `<div class="drow"><span class="dn">${d.tab}</span><span class="df">${d.focus} · <b style="color:var(--text)">${dd.done}/${dd.total}</b> exercícios</span><div class="dbtns">
       <button class="mini yes${st==='yes'?' on':''}" data-tr="${d.id}" data-v="yes">Sim</button>
       <button class="mini no${st==='no'?' on':''}" data-tr="${d.id}" data-v="no">Não</button></div></div>`;
+  }).join('');
+
+  // progresso de exercícios marcados como feitos, por dia (barra + contagem)
+  const exDoneRows=trainingDays.map(d=>{
+    const dd=ds.perDay[d.id]; const w=dd.total? Math.round(dd.done/dd.total*100):0;
+    return `<div class="mrow"><div class="mrow-top"><span class="mn">${d.name}</span><span class="mv"><b>${dd.done}</b>/${dd.total}</span></div><div class="mbar"><span style="width:100%;background:var(--surface2)"></span><span style="width:${w}%;background:var(--green)"></span></div></div>`;
   }).join('');
 
   // feeling selector
@@ -713,9 +756,15 @@ function renderGeral(){
     </div>
 
     <div class="card">
+      <h4>☑️ Exercícios feitos <span style="font-size:9px;color:var(--muted);letter-spacing:.04em">(${ds.doneCount}/${ds.totalCount} marcados)</span></h4>
+      ${exDoneRows}
+      <div class="m-note">Toque no ✓ de cada exercício, em qualquer dia, pra marcar que fez. Some tudo aqui e no equilíbrio muscular abaixo.</div>
+    </div>
+
+    <div class="card">
       <h4>⚖️ Equilíbrio muscular <span style="font-size:9px;color:var(--muted);letter-spacing:.04em">(alvo 10–20 séries/sem)</span></h4>
       ${mbars}
-      <div class="m-note">Leitura do estrategista: por ser um bloco "foco em superiores", <b>ombro</b> e <b>tríceps</b> puxam volume alto, enquanto <b>peito</b> e <b>costas</b> ficam enxutos. É proposital — só monitore para o ombro não sobrecarregar.</div>
+      <div class="m-note">Barra clara = planejado · barra cheia = <b style="color:var(--text)">o que você já marcou como feito</b>. Por ser um bloco "foco em superiores", <b>ombro</b> e <b>tríceps</b> puxam volume alto — monitore pra não sobrecarregar.</div>
     </div>
 
     <div class="card">
@@ -730,7 +779,7 @@ function renderGeral(){
     </div>
 
     <button class="btn-reset" id="resetBtn">🗑 Zerar semana (só o checklist)</button>
-    <div class="reset-note">Zera apenas "treinei ou não" e a sensação da semana. <b>As cargas que você editou são mantidas.</b></div>
+    <div class="reset-note">Zera "treinei ou não", os exercícios marcados e a sensação da semana. <b>As cargas que você editou são mantidas.</b></div>
   `;
 }
 
@@ -749,7 +798,27 @@ function syncCheckBtns(id){
 }
 
 // delegação de eventos
+function syncExCheck(key){
+  const btn=document.querySelector(`[data-exdone="${key}"]`);
+  const wrap=document.querySelector(`[data-exwrap="${key}"]`);
+  const on=LS.done(key);
+  if(btn) btn.classList.toggle('done', on);
+  if(wrap) wrap.classList.toggle('done', on);
+}
+function syncAllExChecks(){
+  document.querySelectorAll('.ex-check').forEach(btn=> syncExCheck(btn.dataset.exdone));
+}
+
 contentEl.addEventListener('click', e=>{
+  const exd=e.target.closest('[data-exdone]');
+  if(exd){
+    const key=exd.dataset.exdone;
+    const on=!LS.done(key);
+    LS.setDone(key, on);
+    syncExCheck(key);
+    renderGeral();
+    return;
+  }
   const tr=e.target.closest('[data-tr]');
   if(tr){
     const id=tr.dataset.tr, v=tr.dataset.v;
@@ -762,9 +831,9 @@ contentEl.addEventListener('click', e=>{
   const fb=e.target.closest('[data-feel]');
   if(fb){ const v=fb.dataset.feel; LS.setFeel(LS.feel()===v?null:v); renderGeral(); return; }
   if(e.target.id==='resetBtn'){
-    if(confirm('Zerar o checklist e a sensação da semana? As cargas editadas serão mantidas.')){
+    if(confirm('Zerar o checklist (dia e exercícios) e a sensação da semana? As cargas editadas serão mantidas.')){
       LS.resetWeek();
-      trainingDays.forEach(d=>syncCheckBtns(d.id)); updateDots(); renderGeral();
+      trainingDays.forEach(d=>syncCheckBtns(d.id)); updateDots(); syncAllExChecks(); renderGeral();
       toast('Semana zerada — cargas preservadas');
     }
   }
