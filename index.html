@@ -666,6 +666,16 @@ days.forEach(d=>{
 function feelData(){
   return {1:{e:'😄',t:'Ótimo'},2:{e:'🙂',t:'Bem'},3:{e:'😐',t:'Neutro'},4:{e:'😓',t:'Cansado'},5:{e:'🥵',t:'Exausto'}};
 }
+// recomendação prática por sensação — o que fazer no treino a partir de como você está se sentindo
+function feelAdvice(){
+  return {
+    1:{tag:'Aproveite o pique',color:'var(--green)',text:'Recuperação excelente. Bom dia pra buscar progressão de carga nos exercícios principais que já fecharam o topo da faixa de reps — sem forçar além da técnica.'},
+    2:{tag:'Siga o plano',color:'var(--teal)',text:'Tudo certo pra treinar como programado hoje. Mantenha o foco na execução e na dupla progressão de carga normalmente.'},
+    3:{tag:'Atenção leve',color:'var(--amber)',text:'Treine normalmente, mas ouça o corpo nas primeiras séries. Sentiu força abaixo do normal num exercício? Não force a carga — priorize a técnica e ajuste na próxima semana.'},
+    4:{tag:'Reduza a carga',color:'var(--rose)',text:'Sinal de fadiga acumulada. Tire ~10% da carga (ou 1 série) dos exercícios acessórios, mantendo os compostos principais mais leves. Durma 7–9h hoje e não pule refeições.'},
+    5:{tag:'Recupere primeiro',color:'var(--rose)',text:'Fadiga alta. Treine só os compostos principais com carga reduzida, ou troque hoje por um descanso ativo leve (caminhada, mobilidade). Sono e alimentação vêm antes de qualquer carga extra.'}
+  };
+}
 function renderGeral(){
   const doneDays = trainingDays.filter(d=>LS.trained(d.id)==='yes');
   const done = doneDays.length, total = trainingDays.length;
@@ -715,6 +725,7 @@ function renderGeral(){
 
   // feeling selector
   const feelBtns=[1,2,3,4,5].map(n=>`<button class="feel-btn${feel==String(n)?' on':''}" data-feel="${n}"><span class="fe">${fd[n].e}</span><span class="ft">${fd[n].t}</span></button>`).join('');
+  const advice = feel ? feelAdvice()[parseInt(feel)] : null;
 
   geralSec.innerHTML=`
     <div class="day-head"><div class="day-name">Geral</div><span class="focus">Relatório semanal · painel</span></div>
@@ -776,6 +787,13 @@ function renderGeral(){
         <div class="strat-item"><span class="si">🦵</span><div><b>Perna é 1x/semana:</b> nunca pule a Sexta. Se puder, um segundo estímulo leve de perna (2–3 séries) na Quinta acelera resultado sem atrapalhar os superiores.</div></div>
         <div class="strat-item"><span class="si">🔄</span><div><b>Deload:</b> a cada 5–6 semanas, reduza o volume pela metade por 1 semana para recuperar articulações e sistema nervoso.</div></div>
       </div>
+    </div>
+
+    <div class="card">
+      <h4>🎯 O que fazer no treino de hoje</h4>
+      ${advice
+        ? `<div class="verdict" style="margin-top:0"><b style="color:${advice.color}">${advice.tag}.</b> ${advice.text}</div>`
+        : `<div class="m-note">Marque acima como você está se sentindo esta semana pra receber uma recomendação prática sobre o treino de hoje.</div>`}
     </div>
 
     <button class="btn-reset" id="resetBtn">🗑 Zerar semana (só o checklist)</button>
