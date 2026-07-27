@@ -666,14 +666,24 @@ days.forEach(d=>{
 function feelData(){
   return {1:{e:'😄',t:'Ótimo'},2:{e:'🙂',t:'Bem'},3:{e:'😐',t:'Neutro'},4:{e:'😓',t:'Cansado'},5:{e:'🥵',t:'Exausto'}};
 }
-// recomendação prática por sensação — o que fazer no treino a partir de como você está se sentindo
+// recomendação prática por sensação — autorregulação baseada em RPE/RIR e literatura de deload/sono
 function feelAdvice(){
   return {
-    1:{tag:'Aproveite o pique',color:'var(--green)',text:'Recuperação excelente. Bom dia pra buscar progressão de carga nos exercícios principais que já fecharam o topo da faixa de reps — sem forçar além da técnica.'},
-    2:{tag:'Siga o plano',color:'var(--teal)',text:'Tudo certo pra treinar como programado hoje. Mantenha o foco na execução e na dupla progressão de carga normalmente.'},
-    3:{tag:'Atenção leve',color:'var(--amber)',text:'Treine normalmente, mas ouça o corpo nas primeiras séries. Sentiu força abaixo do normal num exercício? Não force a carga — priorize a técnica e ajuste na próxima semana.'},
-    4:{tag:'Reduza a carga',color:'var(--rose)',text:'Sinal de fadiga acumulada. Tire ~10% da carga (ou 1 série) dos exercícios acessórios, mantendo os compostos principais mais leves. Durma 7–9h hoje e não pule refeições.'},
-    5:{tag:'Recupere primeiro',color:'var(--rose)',text:'Fadiga alta. Treine só os compostos principais com carga reduzida, ou troque hoje por um descanso ativo leve (caminhada, mobilidade). Sono e alimentação vêm antes de qualquer carga extra.'}
+    1:{tag:'Aproveite o pique',color:'var(--green)',
+      text:'Recuperação excelente. É um bom dia pra buscar progressão de carga nos exercícios principais que já fecharam o topo da faixa de reps — sem abrir mão da técnica.',
+      cref:'Autorregular a carga pela sensação/RIR (repetições em reserva) supera a progressão fixa: um estudo de 12 semanas viu ganho de força maior no grupo autorregulado que no de carga fixa (agachamento +10,8% vs +7,1%). Revisões sistemáticas confirmam esse efeito.'},
+    2:{tag:'Siga o plano',color:'var(--teal)',
+      text:'Tudo certo pra treinar como programado hoje. Mantenha o foco na execução e na dupla progressão de carga normalmente — sem mudar nada.',
+      cref:'Esse é o estado de prontidão "padrão" nos modelos de autorregulação: sem sinais de fadiga extra, o programado já é a dose certa.'},
+    3:{tag:'Atenção leve',color:'var(--amber)',
+      text:'Treine normalmente, mas monitore as primeiras séries. Sentiu força abaixo do normal num exercício? Não force até a falha — ajuste a carga daquela série pela sensação, e retome o normal na próxima semana.',
+      cref:'Autorregular série a série pela velocidade da barra ou pelo RIR percebido é uma ferramenta validada pra ajustar o treino em tempo real à sua capacidade do dia, em vez de forçar um número fixo que não bate com como o corpo responde naquele momento.'},
+    4:{tag:'Reduza a carga',color:'var(--rose)',
+      text:'Sinal de fadiga. Tire ~10% da carga (ou 1 série) dos exercícios acessórios, mas mantenha os compostos principais — só um pouco mais leves. Durma 7–9h hoje e não pule refeições.',
+      cref:'Sono insuficiente reduz força em exercícios multiarticulares (agachamento, supino, remada) mas afeta menos os uniarticulares — por isso a recomendação é aliviar primeiro os acessórios. Uma meta-análise aponta queda média de ~7,6% no desempenho após privação de sono, maior à noite e quanto mais tempo acordado antes do treino.'},
+    5:{tag:'Recupere primeiro',color:'var(--rose)',
+      text:'Fadiga alta — trate hoje como um mini-deload: só os compostos principais, com carga reduzida e mais reps na reserva, ou troque por um descanso ativo leve (caminhada, mobilidade). Sono e alimentação vêm antes de qualquer carga extra.',
+      cref:'Reduzir volume/intensidade por alguns dias (deload) é prática padrão entre treinadores de força pra controlar fadiga sem perder adaptação — cortar o volume preserva ganhos de hipertrofia e resistência muscular, enquanto parar o treino totalmente tende a custar um pouco de força. Ou seja: reduza, não zere.'}
   };
 }
 function renderGeral(){
@@ -792,8 +802,8 @@ function renderGeral(){
     <div class="card">
       <h4>🎯 O que fazer no treino de hoje</h4>
       ${advice
-        ? `<div class="verdict" style="margin-top:0"><b style="color:${advice.color}">${advice.tag}.</b> ${advice.text}</div>`
-        : `<div class="m-note">Marque acima como você está se sentindo esta semana pra receber uma recomendação prática sobre o treino de hoje.</div>`}
+        ? `<div class="verdict" style="margin-top:0"><b style="color:${advice.color}">${advice.tag}.</b> ${advice.text}</div><div class="cref" style="padding:0; margin-top:9px"><b>Base científica:</b> ${advice.cref}</div>`
+        : `<div class="m-note">Marque acima como você está se sentindo esta semana pra receber uma recomendação prática, com base científica, sobre o treino de hoje.</div>`}
     </div>
 
     <button class="btn-reset" id="resetBtn">🗑 Zerar semana (só o checklist)</button>
