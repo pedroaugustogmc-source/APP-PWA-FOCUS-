@@ -184,6 +184,12 @@
   .strat-item{display:flex; gap:10px; font-size:12.8px; line-height:1.5; color:var(--muted); min-width:0}
   .strat-item .si{flex:0 0 auto; font-size:15px; margin-top:1px}
   .strat-item b{color:var(--text)}
+  .acct-input{width:100%; background:var(--surface2); border:1px solid var(--line); border-radius:9px; padding:10px 12px; color:var(--text); font-size:14px; font-family:var(--body); margin-bottom:8px; outline:none; transition:.15s}
+  .acct-input:focus{border-color:var(--indigo)}
+  .acct-btns{display:flex; gap:8px; margin-top:2px; margin-bottom:8px}
+  .acct-btns .mini{flex:1; padding:10px; font-size:12px; text-align:center}
+  .acct-status{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .acct-status .dotok{width:8px; height:8px; border-radius:50%; background:var(--green); flex:0 0 auto}
   .btn-reset{width:100%; margin-top:2px; background:var(--surface); border:1px solid rgba(255,107,107,.35); color:var(--rose); font-family:var(--disp); font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase; padding:13px; border-radius:12px; cursor:pointer; transition:.15s}
   .btn-reset:active{transform:scale(.98)}
   .reset-note{text-align:center; font-size:11px; color:var(--muted); margin-top:8px; opacity:.75}
@@ -209,29 +215,84 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 /* ============================================================
    Persistência (localStorage) — cargas + checklist + sensação
    ============================================================ */
+// toda escrita local passa por aqui — marca quando mudou (usado pra decidir
+// se sincroniza pra cima ou pra baixo) e agenda um envio pra nuvem, se logado.
+function markChange(){
+  localStorage.setItem('sync:lastChange', Date.now().toString());
+  if(typeof scheduleCloudSync==='function') scheduleCloudSync();
+}
 const LS = {
   load:  k => localStorage.getItem('load:'+k),
-  setLoad:(k,v)=> localStorage.setItem('load:'+k, v),
+  setLoad:(k,v)=>{ localStorage.setItem('load:'+k, v); markChange(); },
   name:  k => localStorage.getItem('name:'+k),            // nome do exercício, se o usuário renomeou
-  setName:(k,v)=> v? localStorage.setItem('name:'+k, v) : localStorage.removeItem('name:'+k),
+  setName:(k,v)=>{ v? localStorage.setItem('name:'+k, v) : localStorage.removeItem('name:'+k); markChange(); },
   removed:  k => localStorage.getItem('removed:'+k)==='1', // exercício removido do treino (reversível)
-  setRemoved:(k,v)=> v? localStorage.setItem('removed:'+k,'1') : localStorage.removeItem('removed:'+k),
+  setRemoved:(k,v)=>{ v? localStorage.setItem('removed:'+k,'1') : localStorage.removeItem('removed:'+k); markChange(); },
   plan:  ()=> localStorage.getItem('plan') || '4',          // plano ativo: '2' | '3' | '4' dias/semana
-  setPlan: v => localStorage.setItem('plan', v),
+  setPlan: v =>{ localStorage.setItem('plan', v); markChange(); },
   trained:  d => localStorage.getItem('trained:'+d),      // 'yes' | 'no' | null
-  setTrained:(d,v)=> v? localStorage.setItem('trained:'+d, v) : localStorage.removeItem('trained:'+d),
+  setTrained:(d,v)=>{ v? localStorage.setItem('trained:'+d, v) : localStorage.removeItem('trained:'+d); markChange(); },
   done:  k => localStorage.getItem('done:'+k)==='1',      // exercício individual feito?
-  setDone:(k,v)=> v? localStorage.setItem('done:'+k,'1') : localStorage.removeItem('done:'+k),
+  setDone:(k,v)=>{ v? localStorage.setItem('done:'+k,'1') : localStorage.removeItem('done:'+k); markChange(); },
   feel:  ()=> localStorage.getItem('feel:week'),
-  setFeel:v=> v? localStorage.setItem('feel:week', v) : localStorage.removeItem('feel:week'),
+  setFeel:v=>{ v? localStorage.setItem('feel:week', v) : localStorage.removeItem('feel:week'); markChange(); },
   resetWeek(){ // zera SÓ o checklist (dia + exercícios) e a sensação — mantém cargas, nomes e remoções
     Object.keys(localStorage).forEach(k=>{ if(k.startsWith('trained:')||k.startsWith('done:')||k==='feel:week') localStorage.removeItem(k); });
+    markChange();
   }
 };
+
+/* ============================================================
+   Conta na nuvem (opcional) — Supabase Auth + backup/sincronização
+   O app funciona 100% offline sem conta; criar conta só adiciona
+   backup automático e sincronia entre aparelhos, por cima do que
+   já existe no localStorage.
+   ============================================================ */
+const SUPABASE_URL = 'https://arkqdpbuxbsufhyxfwyh.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFya3FkcGJ1eGJzdWZoeXhmd3loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MTY5NDQsImV4cCI6MjEwNDE5Mjk0NH0.KKlvhg_VCQ8_u9BUGNImOgh7dVqFzoNj-qvKXB8VygQ';
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let cloudUser = null;
+let syncTimer = null;
+
+function getSnapshot(){ // tudo que o app gerencia no localStorage, exceto o próprio token de auth
+  const snap = {};
+  Object.keys(localStorage).forEach(k=>{ if(!k.startsWith('sb-')) snap[k]=localStorage.getItem(k); });
+  return snap;
+}
+function applySnapshot(snap){
+  Object.keys(localStorage).forEach(k=>{ if(!k.startsWith('sb-')) localStorage.removeItem(k); });
+  Object.entries(snap||{}).forEach(([k,v])=> localStorage.setItem(k, v));
+}
+async function pushToCloud(){
+  if(!sb || !cloudUser) return;
+  await sb.from('app_state').upsert({ user_id: cloudUser.id, data: getSnapshot() });
+}
+async function pullFromCloud(){
+  if(!sb || !cloudUser) return;
+  const { data, error } = await sb.from('app_state').select('data, updated_at').eq('user_id', cloudUser.id).maybeSingle();
+  if(error){ console.warn('Erro ao sincronizar:', error.message); return; }
+  if(!data){ await pushToCloud(); return; } // primeiro login: sobe o que já está neste aparelho
+  const localTs = parseInt(localStorage.getItem('sync:lastChange')||'0', 10);
+  const cloudTs = new Date(data.updated_at).getTime();
+  if(cloudTs > localTs){ applySnapshot(data.data); location.reload(); } // outro aparelho tem versão mais nova
+  else { await pushToCloud(); } // este aparelho tem a versão mais nova (ou empatado) — sobe
+}
+function scheduleCloudSync(){
+  if(!cloudUser) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushToCloud, 1200);
+}
+async function initCloudSession(){
+  if(!sb) return;
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ cloudUser = session.user; await pullFromCloud(); }
+  renderGeral();
+}
 
 const toast = (()=>{ const el=document.getElementById('toast'); let t;
   return msg=>{ el.textContent=msg; el.classList.add('show'); clearTimeout(t); t=setTimeout(()=>el.classList.remove('show'),1600); };
@@ -1191,9 +1252,30 @@ function renderGeral(){
         : `<div class="m-note">Marque acima como você está se sentindo esta semana pra receber uma recomendação prática, com base científica, sobre o treino de hoje.</div>`}
     </div>
 
+    <div class="card">${accountCardHTML()}</div>
+
     <button class="btn-reset" id="resetBtn">🗑 Zerar semana (só o checklist)</button>
     <div class="reset-note">Zera "treinei ou não", os exercícios marcados e a sensação da semana. <b>As cargas que você editou são mantidas.</b></div>
   `;
+}
+
+// card de conta — opcional. Sem login o app funciona 100% offline, salvo só neste
+// aparelho; criar conta liga o backup automático e a sincronização entre aparelhos.
+function accountCardHTML(){
+  if(cloudUser){
+    return `<h4>👤 Conta</h4>
+      <div class="acct-status"><span class="dotok"></span><span>Logado como <b style="color:var(--text)">${cloudUser.email}</b> · sincronizado na nuvem</span></div>
+      <button class="mini no" id="acctLogout" style="margin-top:10px">Sair da conta</button>`;
+  }
+  return `<h4>👤 Conta — backup na nuvem (opcional)</h4>
+    <input type="email" id="acctEmail" class="acct-input" placeholder="seu@email.com" autocomplete="email">
+    <input type="password" id="acctPassword" class="acct-input" placeholder="Senha (mín. 6 caracteres)" autocomplete="current-password">
+    <div class="acct-btns">
+      <button class="mini yes" id="acctSignup">Criar conta</button>
+      <button class="mini" id="acctLogin">Entrar</button>
+    </div>
+    <div class="m-note" id="acctMsg"></div>
+    <div class="m-note">Sem conta o app já funciona 100% offline, salvo só neste aparelho. Criar conta faz backup automático e sincroniza com outros celulares — nada muda no que já está salvo aqui.</div>`;
 }
 
 /* ============================================================
@@ -1269,8 +1351,49 @@ contentEl.addEventListener('click', e=>{
       trainingDays.forEach(d=>syncCheckBtns(d.id)); updateDots(); syncAllExChecks(); renderGeral();
       toast('Semana zerada — cargas preservadas');
     }
+    return;
+  }
+  if(e.target.id==='acctSignup' || e.target.id==='acctLogin'){
+    acctAuth(e.target.id==='acctSignup' ? 'signup' : 'login');
+    return;
+  }
+  if(e.target.id==='acctLogout'){
+    if(!sb) return;
+    sb.auth.signOut().then(()=>{ cloudUser=null; renderGeral(); toast('Você saiu da conta — dados continuam salvos neste aparelho'); });
+    return;
   }
 });
+
+// cria conta ou faz login por email/senha, com feedback na própria tela
+async function acctAuth(kind){
+  const msgEl = document.getElementById('acctMsg');
+  if(!sb){ msgEl.textContent='Não foi possível conectar ao servidor de contas agora. Verifique sua internet e tente de novo — seus dados continuam salvos neste aparelho normalmente.'; msgEl.style.color='var(--rose)'; return; }
+  const email = document.getElementById('acctEmail').value.trim();
+  const password = document.getElementById('acctPassword').value;
+  if(!email || !password){ msgEl.textContent='Preencha email e senha.'; msgEl.style.color='var(--rose)'; return; }
+  if(password.length<6){ msgEl.textContent='A senha precisa ter pelo menos 6 caracteres.'; msgEl.style.color='var(--rose)'; return; }
+  msgEl.style.color='var(--muted)';
+  msgEl.textContent = kind==='signup' ? 'Criando conta…' : 'Entrando…';
+  let result;
+  try{
+    result = kind==='signup'
+      ? await sb.auth.signUp({ email, password })
+      : await sb.auth.signInWithPassword({ email, password });
+  } catch(err){
+    msgEl.textContent='Falha de conexão com o servidor de contas. Tente de novo em instantes.'; msgEl.style.color='var(--rose)'; return;
+  }
+  const { data, error } = result;
+  if(error){ msgEl.textContent = error.message; msgEl.style.color='var(--rose)'; return; }
+  if(kind==='signup' && !data.session){
+    msgEl.style.color='var(--teal)';
+    msgEl.textContent = 'Conta criada! Confira seu email pra confirmar e depois toque em "Entrar".';
+    return;
+  }
+  cloudUser = data.user;
+  toast('Login feito — sincronizando…');
+  await pullFromCloud();
+  renderGeral();
+}
 
 // edição de cargas
 contentEl.addEventListener('change', e=>{
@@ -1328,6 +1451,7 @@ function select(id){
 // init
 updateDots();
 renderGeral();
+initCloudSession(); // se já havia login salvo, sincroniza em segundo plano
 </script>
 <script>
 /* Registro do Service Worker — habilita instalação e uso offline.
