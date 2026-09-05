@@ -41,6 +41,10 @@
   h1 span{color:var(--muted); font-weight:500}
   .meta{font-size:12px; color:var(--muted); margin-top:4px}
   .meta b{color:var(--text); font-weight:600}
+  .plan-switch{display:flex; gap:6px; margin-top:10px}
+  .plan-btn{flex:1; font-family:var(--disp); font-weight:600; font-size:11px; letter-spacing:.05em; text-transform:uppercase; padding:8px 4px; border-radius:9px; border:1px solid var(--line); background:var(--surface2); color:var(--muted); cursor:pointer; transition:.15s}
+  .plan-btn.on{background:var(--amber); border-color:var(--amber); color:var(--bg)}
+  .plan-btn:active{transform:scale(.96)}
   nav{display:flex; gap:6px; overflow-x:auto; padding:10px calc(14px + env(safe-area-inset-right)) 12px calc(14px + env(safe-area-inset-left)); -webkit-overflow-scrolling:touch; scrollbar-width:none}
   nav::-webkit-scrollbar{display:none}
   .tab{flex:0 0 auto; background:var(--surface); border:1px solid var(--line); color:var(--muted); border-radius:11px; padding:8px 13px; cursor:pointer; font-family:var(--disp); font-weight:600; font-size:14px; letter-spacing:.06em; text-transform:uppercase; transition:.15s; display:flex; flex-direction:column; align-items:center; min-width:58px; line-height:1.1; position:relative}
@@ -60,14 +64,16 @@
   .block{margin:18px 0}
   .block-title{font-family:var(--disp); font-weight:600; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:8px; margin-bottom:9px}
   .block-title::after{content:""; flex:1; height:1px; background:var(--line)}
-  .ex{background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:12px 13px; margin-bottom:8px; display:flex; gap:11px; align-items:flex-start; transition:.15s}
+  .ex{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:13px; padding:12px 13px; margin-bottom:8px; display:flex; gap:11px; align-items:flex-start; transition:.15s}
   .ex.done{border-color:rgba(74,222,128,.35); background:rgba(74,222,128,.06)}
   .ex.done .ex-body{opacity:.72}
+  .ex-del{position:absolute; top:9px; right:9px; width:22px; height:22px; border-radius:6px; border:1px solid transparent; background:transparent; color:var(--muted); opacity:.35; font-size:11px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.15s; padding:0}
+  .ex-del:active{opacity:1; color:var(--rose); background:rgba(255,107,107,.12); border-color:rgba(255,107,107,.3); transform:scale(.92)}
   .num{font-family:var(--disp); font-weight:600; font-size:14px; color:var(--amber); background:var(--surface2); border:1px solid var(--line); min-width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; margin-top:1px}
   .ex-check{flex:0 0 auto; width:26px; height:26px; border-radius:7px; border:1px solid var(--line); background:var(--surface2); color:transparent; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:1px; padding:0; transition:.15s}
   .ex-check:active{transform:scale(.9)}
   .ex-check.done{background:var(--green); border-color:var(--green); color:#08210f}
-  .ex-body{flex:1; min-width:0}
+  .ex-body{flex:1; min-width:0; padding-right:28px}
   .ex-name{font-weight:600; font-size:15px; letter-spacing:-.01em; cursor:text; border-bottom:1px dashed rgba(255,255,255,.16); outline:none; border-radius:2px; transition:.15s}
   .ex-name:focus{border-bottom-color:var(--amber); background:rgba(255,176,32,.08)}
   .ex-name.edited{color:var(--amber)}
@@ -189,9 +195,10 @@
 <body>
 <header>
   <div class="head-inner">
-    <div class="kicker">Cronograma · ABCD-01</div>
-    <h1>Foco em Superiores <span>· Hipertrofia</span></h1>
-    <div class="meta">Nível <b>intermediário-avançado</b> · <b>4 dias</b> + 2 de descanso ativo · dupla progressão</div>
+    <div class="kicker" id="kicker">Cronograma · ABCD-01</div>
+    <h1 id="h1Title">Foco em Superiores <span>· Hipertrofia</span></h1>
+    <div class="meta" id="metaLine">Nível <b>intermediário-avançado</b> · <b>4 dias</b> + 2 de descanso ativo · dupla progressão</div>
+    <div class="plan-switch" id="planSwitch"></div>
   </div>
   <nav id="tabs"></nav>
 </header>
@@ -211,13 +218,17 @@ const LS = {
   setLoad:(k,v)=> localStorage.setItem('load:'+k, v),
   name:  k => localStorage.getItem('name:'+k),            // nome do exercício, se o usuário renomeou
   setName:(k,v)=> v? localStorage.setItem('name:'+k, v) : localStorage.removeItem('name:'+k),
+  removed:  k => localStorage.getItem('removed:'+k)==='1', // exercício removido do treino (reversível)
+  setRemoved:(k,v)=> v? localStorage.setItem('removed:'+k,'1') : localStorage.removeItem('removed:'+k),
+  plan:  ()=> localStorage.getItem('plan') || '4',          // plano ativo: '2' | '3' | '4' dias/semana
+  setPlan: v => localStorage.setItem('plan', v),
   trained:  d => localStorage.getItem('trained:'+d),      // 'yes' | 'no' | null
   setTrained:(d,v)=> v? localStorage.setItem('trained:'+d, v) : localStorage.removeItem('trained:'+d),
   done:  k => localStorage.getItem('done:'+k)==='1',      // exercício individual feito?
   setDone:(k,v)=> v? localStorage.setItem('done:'+k,'1') : localStorage.removeItem('done:'+k),
   feel:  ()=> localStorage.getItem('feel:week'),
   setFeel:v=> v? localStorage.setItem('feel:week', v) : localStorage.removeItem('feel:week'),
-  resetWeek(){ // zera SÓ o checklist (dia + exercícios) e a sensação — mantém cargas e nomes
+  resetWeek(){ // zera SÓ o checklist (dia + exercícios) e a sensação — mantém cargas, nomes e remoções
     Object.keys(localStorage).forEach(k=>{ if(k.startsWith('trained:')||k.startsWith('done:')||k==='feel:week') localStorage.removeItem(k); });
   }
 };
@@ -232,7 +243,7 @@ const toast = (()=>{ const el=document.getElementById('toast'); let t;
    ============================================================ */
 const chip = (cls,lbl,val)=>`<span class="chip ${cls}"><span class="lbl">${lbl}</span>${val}</span>`;
 
-function exRow(e,n){
+function exRow(e,n,dayBadge){
   const key = e.id; // identidade fixa e permanente do exercício — nunca muda com a posição no array
   let chips = chip('sr','Séries×Reps',`<b>${e.sr}</b>`);
   if(e.carga!==undefined){
@@ -245,21 +256,22 @@ function exRow(e,n){
         <span class="pencil">✎</span></span>`;
   }
   if(e.prog){ chips += chip('prog','Progressão', e.prog); }
-  const num = n?`<div class="num">${n}</div>`:'';
+  const num = n? `<div class="num">${n}</div>` : dayBadge? `<div class="num" style="font-size:9.5px">${dayBadge}</div>` : '';
   let tips='';
   if(e.tips){
     tips = `<details class="tips"><summary>Como fazer certo</summary><ul>${e.tips.map(t=>`<li>${t}</li>`).join('')}</ul>${e.cref?`<div class="cref">${e.cref}</div>`:''}</details>`;
   }
   const isDone = LS.done(key);
   const check = `<button class="ex-check${isDone?' done':''}" data-exdone="${key}" type="button" aria-label="Marcar ${e.ex.replace(/"/g,'&quot;')} como feito">✓</button>`;
+  const del = `<button class="ex-del" data-exdel="${key}" type="button" aria-label="Remover ${e.ex.replace(/"/g,'&quot;')} do treino">✕</button>`;
   const savedName = LS.name(key);
   const displayName = savedName!==null ? savedName : e.ex;
   const nameEdited = savedName!==null && savedName!==e.ex;
   const nameEl = `<div class="ex-name${nameEdited?' edited':''}" contenteditable="true" spellcheck="false" data-namekey="${key}" data-default="${e.ex.replace(/"/g,'&quot;')}" aria-label="Editar nome do exercício">${displayName}</div>`;
-  return `<div class="ex${isDone?' done':''}" data-exwrap="${key}">${check}${num}<div class="ex-body">${nameEl}<div class="chips">${chips}</div>${e.obs?`<div class="obs">${e.obs}</div>`:''}${tips}</div></div>`;
+  return `<div class="ex${isDone?' done':''}" data-exwrap="${key}">${check}${num}<div class="ex-body">${nameEl}<div class="chips">${chips}</div>${e.obs?`<div class="obs">${e.obs}</div>`:''}${tips}</div>${del}</div>`;
 }
 
-const days = [
+const days4 = [
  {id:'seg',tab:'Seg',sub:'Empurrar',name:'Segunda',focus:'Peito · Ombro · Tríceps',type:'treino',
   blocks:[
    {t:'Pré-treino',items:[
@@ -569,21 +581,327 @@ const days = [
 ];
 
 /* ============================================================
+   Plano de 2 dias/semana — Full Body A/B (cada músculo 2x/sem)
+   ============================================================ */
+const days2 = [
+ {id:'fb2a',tab:'A',sub:'Corpo Inteiro',name:'Dia A',focus:'Pernas · Peito · Costas · Ombro',type:'treino',
+  blocks:[
+   {t:'Treino',num:true,items:[
+     {ex:'Agachamento goblet',id:'fb2a-0-0',sr:'4×8–10',carga:'definir*',def:true,prog:'carga base com técnica sólida',mg:'Pernas',obs:'Padrão principal — tronco ereto, desce firme.',
+      tips:[
+        '<b>Pés</b> na largura dos ombros, pontas levemente para fora (~15–30°).',
+        '<b>Descida:</b> quadril e joelhos ao mesmo tempo; desça até coxa paralela ou um pouco abaixo, se a mobilidade permitir.',
+        '<b>Joelhos</b> acompanham a linha dos pés — não deixe cair para dentro (evite o valgo dinâmico).',
+        '<b>Calcanhares</b> firmes no chão o tempo todo; halter colado ao peito, cotovelos apontando pra baixo.',
+        '<b>Tronco ereto</b> e core contraído — respire fundo e segure o ar na descida (manobra de Valsalva breve).'
+      ],cref:'Base científica: ADM completa e joelho ultrapassando a ponta do pé são seguros e aumentam o recrutamento de quadríceps/glúteo em indivíduos saudáveis.'},
+     {ex:'Supino inclinado com halteres',id:'fb2a-0-1',sr:'3×10–12',carga:'14–16 kg',def:true,prog:'fechar 12 → subir 2 kg',mg:'Peito',obs:'Descida controlada ~2s.',
+      tips:[
+        '<b>Banco</b> entre 30–45° — mais que isso desloca o foco pro ombro.',
+        '<b>Escápulas retraídas</b> e fixas no banco antes de começar a série.',
+        '<b>Desça</b> até sentir alongar o peitoral, cotovelos a ~45° do tronco.',
+        '<b>Suba</b> juntando levemente os halteres no topo, sem bater um no outro.'
+      ],cref:'Base científica: inclinação de 30–45° mantém o estímulo no peitoral superior sem transferir demais para o deltoide anterior.'},
+     {ex:'Remada cavalinho',id:'fb2a-0-2',sr:'3×10–12',carga:'definir*',def:true,prog:'carga p/ deixar 1–2 reps reserva',mg:'Costas',obs:'Peito apoiado, retrair escápula.',
+      tips:[
+        '<b>Peito bem apoiado</b> no banco — evita compensar com a lombar.',
+        '<b>Retraia as escápulas</b> antes de flexionar os cotovelos.',
+        '<b>Cotovelos</b> próximos ao tronco, puxando em direção ao abdômen.',
+        '<b>Pausa breve</b> no ponto de contração máxima.'
+      ],cref:'Base científica: o apoio do peito remove a exigência de estabilização lombar, isolando o trabalho nas costas.'},
+     {ex:'Desenvolvimento com halteres',id:'fb2a-0-3',sr:'3×10',carga:'12–14 kg',def:true,prog:'fechar 10 → subir 2 kg',mg:'Ombro',obs:'Principal de ombro do dia.',
+      tips:[
+        '<b>Cotovelos</b> alinhados abaixo dos punhos, trajetória levemente em arco.',
+        '<b>Não trave</b> os cotovelos com força no topo do movimento.',
+        '<b>Core contraído</b> o tempo todo pra não arquear a lombar.',
+        '<b>Desça</b> só até onde o ombro ficar confortável — sem forçar amplitude.'
+      ],cref:'Base científica: o desenvolvimento sobrecarrega o manguito rotador; controlar a amplitude reduz risco de impacto no ombro.'},
+     {ex:'Cadeira extensora',id:'fb2a-0-4',sr:'3×12',carga:'ajustar*',def:true,mg:'Pernas',obs:'Quadríceps, segura o pico 1s.',
+      tips:[
+        '<b>Alinhe</b> o eixo da máquina com o seu joelho e ajuste o encosto para as costas apoiadas.',
+        '<b>Estenda</b> de forma controlada e segure o pico da contração ~1s.',
+        '<b>Excêntrica lenta</b> (~2s) na volta — não deixe o peso "cair".',
+        '<b>Sem impulso:</b> evite chutar; o quadríceps deve fazer o trabalho.'
+      ],cref:'Base científica: a pausa isométrica no encurtamento e a excêntrica controlada maximizam a tensão sobre o quadríceps.'},
+     {ex:'Rosca direta barra W',id:'fb2a-0-5',sr:'3×10',carga:'25 kg',def:true,prog:'fechar 10 → subir',mg:'Bíceps',obs:'Tronco firme, sem balançar.',
+      tips:[
+        '<b>Cotovelos fixos</b> ao lado do tronco, sem "balançar" pra levantar.',
+        '<b>Pegada na barra W</b> reduz o estresse no punho vs. barra reta.',
+        '<b>Subida e descida</b> controladas, sem impulso do quadril.',
+        '<b>Contração no topo</b> sem hiperflexionar o punho.'
+      ],cref:'Base científica: a angulação da barra W posiciona o antebraço numa curva mais neutra, poupando a articulação do punho.'},
+     {ex:'Tríceps corda',id:'fb2a-0-6',sr:'3×12–15',carga:'40 kg',def:true,prog:'fechar 15 → +1 placa',mg:'Tríceps',obs:'Abrir a corda no fim do movimento.',
+      tips:[
+        '<b>Cotovelos colados</b> ao tronco durante todo o movimento.',
+        '<b>Abra a corda</b> no final para uma contração de pico mais completa.',
+        '<b>Tronco</b> parado — não incline pra frente pra "ajudar" o peso.',
+        '<b>Extensão completa</b> sem travar forte a articulação do cotovelo.'
+      ],cref:'Base científica: a abertura da corda no final aumenta o recrutamento da cabeça lateral do tríceps.'},
+   ]},
+   {t:'Pós-treino',items:[
+     {ex:'Dead bug',id:'fb2a-1-0',sr:'3×10',mg:'Abdômen'},
+     {ex:'Abdominal infra',id:'fb2a-1-1',sr:'3×15',mg:'Abdômen'},
+   ]},
+  ]},
+
+ {id:'fb2b',tab:'B',sub:'Corpo Inteiro',name:'Dia B',focus:'Pernas · Costas · Peito · Ombro',type:'treino',
+  blocks:[
+   {t:'Treino',num:true,items:[
+     {ex:'Stiff com halteres',id:'fb2b-0-0',sr:'4×10',carga:'definir*',def:true,mg:'Pernas',obs:'Posterior de coxa — empurra o quadril pra trás.',
+      tips:[
+        '<b>É dobradiça de quadril</b>, não agachamento: empurre o quadril para trás, o tronco inclina naturalmente.',
+        '<b>Joelhos</b> levemente flexionados e fixos durante todo o movimento.',
+        '<b>Halteres deslizam</b> rente às coxas; desça até sentir alongar o posterior (fim da ADM = quando a lombar começaria a curvar).',
+        '<b>Coluna neutra</b> sempre — nunca arredonde a lombar para descer mais.'
+      ],cref:'Base científica: o exercício treina o posterior de coxa em alongamento — a lombar neutra é o fator de segurança-chave (CREF/biomecânica).'},
+     {ex:'Puxada alta peg. neutra',id:'fb2b-0-1',sr:'3×10–12',carga:'45 kg',def:true,prog:'fechar 12 → subir',mg:'Costas',obs:'Puxar com o cotovelo, não com a mão.',
+      tips:[
+        '<b>Cotovelo guia</b> o movimento: puxe levando cotovelos pra baixo e pra trás.',
+        '<b>Leve inclinação</b> do tronco pra trás (~10–20°), sem balançar o corpo.',
+        '<b>Desça</b> a barra até a altura do peito superior.',
+        '<b>Controle a subida</b> (fase excêntrica) — não solte o peso de volta.'
+      ],cref:'Base científica: iniciar o movimento retraindo a escápula antes de flexionar o cotovelo ativa mais o latíssimo do dorso.'},
+     {ex:'Crucifixo (máquina)',id:'fb2b-0-2',sr:'3×12–15',carga:'40 kg',def:true,prog:'fechar 15 → +1 placa',mg:'Peito',obs:'Alongar bem o peitoral.',
+      tips:[
+        '<b>Ajuste o banco</b> pra as alças ficarem na altura do peito.',
+        '<b>Cotovelos</b> levemente flexionados e fixos durante todo o movimento.',
+        '<b>Feche</b> em arco, "abraçando", sem bater as alças com força.',
+        '<b>Alongue</b> controlado na abertura, sem forçar o ombro além do confortável.'
+      ],cref:'Base científica: manter leve flexão de cotovelo protege a articulação e mantém a tensão focada no peitoral.'},
+     {ex:'Elevação lateral com halteres',id:'fb2b-0-3',sr:'3×12',carga:'~8 kg',def:true,prog:'subir ao fechar',mg:'Ombro',obs:'Sem balançar o tronco.',
+      tips:[
+        '<b>Cotovelos</b> levemente flexionados, como "servindo uma jarra".',
+        '<b>Suba</b> até a altura do ombro, sem passar muito disso.',
+        '<b>Sem impulso</b> do tronco ou balanço pra ajudar a subir.',
+        '<b>Descida controlada</b> — é onde mais se ganha estímulo.'
+      ],cref:'Base científica: elevar acima da linha do ombro aumenta o risco de impacto (impingement) sem ganho adicional de estímulo.'},
+     {ex:'Panturrilha em pé',id:'fb2b-0-4',sr:'3×15',carga:'definir*',def:true,mg:'Pernas',obs:'Amplitude total, pausa embaixo.',
+      tips:[
+        '<b>Amplitude total:</b> desça o calcanhar abaixo do nível do degrau (alongado) e suba o máximo (contraído).',
+        '<b>Pausa de ~1s</b> embaixo e no topo — a panturrilha responde muito ao tempo sob tensão.',
+        '<b>Sem quicar:</b> movimento lento e controlado, sem usar o reflexo elástico do tendão.',
+        '<b>Joelhos</b> estendidos (foco no gastrocnêmio).'
+      ],cref:'Base científica: a amplitude completa em alongamento gera mais hipertrofia na panturrilha do que repetições parciais rápidas.'},
+     {ex:'Rosca martelo corda',id:'fb2b-0-5',sr:'3×12',carga:'35 kg',def:true,prog:'subir ao fechar',mg:'Bíceps',obs:'Pega neutra, trabalha braquial.',
+      tips:[
+        '<b>Pegada neutra</b> (palmas se olhando) durante todo o movimento.',
+        '<b>Cotovelos fixos</b> junto ao tronco.',
+        '<b>Recruta</b> braquial e antebraço além do bíceps.',
+        '<b>Controle a descida</b>, sem deixar o peso cair.'
+      ],cref:'Base científica: a pegada neutra ativa mais o braquial, contribuindo pra espessura do braço junto com o bíceps.'},
+     {ex:'Tríceps testa',id:'fb2b-0-6',sr:'3×12',carga:'6 kg',def:true,prog:'subir ao fechar',mg:'Tríceps',obs:'Não abrir os cotovelos.',
+      tips:[
+        '<b>Cotovelos</b> apontando pro teto e fixos durante toda a série.',
+        '<b>Desça</b> a barra em direção à testa/atrás da cabeça, controlado.',
+        '<b>Não abra</b> os cotovelos para os lados — isso "rouba" o tríceps.',
+        '<b>Extensão completa</b> sem hiperestender o cotovelo no topo.'
+      ],cref:'Base científica: cotovelos abertos transferem carga para o ombro e reduzem o estímulo direto no tríceps.'},
+   ]},
+   {t:'Pós-treino',items:[
+     {ex:'Prancha com retroversão',id:'fb2b-1-0',sr:'3×15',mg:'Abdômen'},
+     {ex:'Vacuum abdominal',id:'fb2b-1-1',sr:'3×30s',mg:'Abdômen'},
+   ]},
+  ]},
+];
+
+/* ============================================================
+   Plano de 3 dias/semana — Full Body A/B/C (cada músculo 3x/sem)
+   ============================================================ */
+const days3 = [
+ {id:'fb3a',tab:'A',sub:'Corpo Inteiro',name:'Dia A',focus:'Pernas · Peito · Costas · Ombro',type:'treino',
+  blocks:[
+   {t:'Treino',num:true,items:[
+     {ex:'Agachamento goblet',id:'fb3a-0-0',sr:'3×8–10',carga:'definir*',def:true,prog:'carga base com técnica sólida',mg:'Pernas',obs:'Padrão principal — tronco ereto, desce firme.',
+      tips:[
+        '<b>Pés</b> na largura dos ombros, pontas levemente para fora (~15–30°).',
+        '<b>Descida:</b> quadril e joelhos ao mesmo tempo; desça até coxa paralela ou um pouco abaixo, se a mobilidade permitir.',
+        '<b>Joelhos</b> acompanham a linha dos pés — não deixe cair para dentro (evite o valgo dinâmico).',
+        '<b>Calcanhares</b> firmes no chão o tempo todo; halter colado ao peito, cotovelos apontando pra baixo.',
+        '<b>Tronco ereto</b> e core contraído — respire fundo e segure o ar na descida (manobra de Valsalva breve).'
+      ],cref:'Base científica: ADM completa e joelho ultrapassando a ponta do pé são seguros e aumentam o recrutamento de quadríceps/glúteo em indivíduos saudáveis.'},
+     {ex:'Supino inclinado com halteres',id:'fb3a-0-1',sr:'3×10–12',carga:'14–16 kg',def:true,prog:'fechar 12 → subir 2 kg',mg:'Peito',obs:'Descida controlada ~2s.',
+      tips:[
+        '<b>Banco</b> entre 30–45° — mais que isso desloca o foco pro ombro.',
+        '<b>Escápulas retraídas</b> e fixas no banco antes de começar a série.',
+        '<b>Desça</b> até sentir alongar o peitoral, cotovelos a ~45° do tronco.',
+        '<b>Suba</b> juntando levemente os halteres no topo, sem bater um no outro.'
+      ],cref:'Base científica: inclinação de 30–45° mantém o estímulo no peitoral superior sem transferir demais para o deltoide anterior.'},
+     {ex:'Remada cavalinho',id:'fb3a-0-2',sr:'3×10–12',carga:'definir*',def:true,prog:'carga p/ deixar 1–2 reps reserva',mg:'Costas',obs:'Peito apoiado, retrair escápula.',
+      tips:[
+        '<b>Peito bem apoiado</b> no banco — evita compensar com a lombar.',
+        '<b>Retraia as escápulas</b> antes de flexionar os cotovelos.',
+        '<b>Cotovelos</b> próximos ao tronco, puxando em direção ao abdômen.',
+        '<b>Pausa breve</b> no ponto de contração máxima.'
+      ],cref:'Base científica: o apoio do peito remove a exigência de estabilização lombar, isolando o trabalho nas costas.'},
+     {ex:'Elevação lateral com halteres',id:'fb3a-0-3',sr:'3×12',carga:'~8 kg',def:true,prog:'subir ao fechar',mg:'Ombro',obs:'Sem balançar o tronco.',
+      tips:[
+        '<b>Cotovelos</b> levemente flexionados, como "servindo uma jarra".',
+        '<b>Suba</b> até a altura do ombro, sem passar muito disso.',
+        '<b>Sem impulso</b> do tronco ou balanço pra ajudar a subir.',
+        '<b>Descida controlada</b> — é onde mais se ganha estímulo.'
+      ],cref:'Base científica: elevar acima da linha do ombro aumenta o risco de impacto (impingement) sem ganho adicional de estímulo.'},
+     {ex:'Rosca direta barra W',id:'fb3a-0-4',sr:'3×10',carga:'25 kg',def:true,prog:'fechar 10 → subir',mg:'Bíceps',obs:'Tronco firme, sem balançar.',
+      tips:[
+        '<b>Cotovelos fixos</b> ao lado do tronco, sem "balançar" pra levantar.',
+        '<b>Pegada na barra W</b> reduz o estresse no punho vs. barra reta.',
+        '<b>Subida e descida</b> controladas, sem impulso do quadril.',
+        '<b>Contração no topo</b> sem hiperflexionar o punho.'
+      ],cref:'Base científica: a angulação da barra W posiciona o antebraço numa curva mais neutra, poupando a articulação do punho.'},
+   ]},
+   {t:'Pós-treino',items:[
+     {ex:'Dead bug',id:'fb3a-1-0',sr:'3×10',mg:'Abdômen'},
+   ]},
+  ]},
+
+ {id:'fb3b',tab:'B',sub:'Corpo Inteiro',name:'Dia B',focus:'Pernas · Costas · Ombro · Tríceps',type:'treino',
+  blocks:[
+   {t:'Treino',num:true,items:[
+     {ex:'Stiff com halteres',id:'fb3b-0-0',sr:'3×10',carga:'definir*',def:true,mg:'Pernas',obs:'Posterior de coxa — empurra o quadril pra trás.',
+      tips:[
+        '<b>É dobradiça de quadril</b>, não agachamento: empurre o quadril para trás, o tronco inclina naturalmente.',
+        '<b>Joelhos</b> levemente flexionados e fixos durante todo o movimento.',
+        '<b>Halteres deslizam</b> rente às coxas; desça até sentir alongar o posterior (fim da ADM = quando a lombar começaria a curvar).',
+        '<b>Coluna neutra</b> sempre — nunca arredonde a lombar para descer mais.'
+      ],cref:'Base científica: o exercício treina o posterior de coxa em alongamento — a lombar neutra é o fator de segurança-chave (CREF/biomecânica).'},
+     {ex:'Puxada alta peg. neutra',id:'fb3b-0-1',sr:'3×10–12',carga:'45 kg',def:true,prog:'fechar 12 → subir',mg:'Costas',obs:'Puxar com o cotovelo, não com a mão.',
+      tips:[
+        '<b>Cotovelo guia</b> o movimento: puxe levando cotovelos pra baixo e pra trás.',
+        '<b>Leve inclinação</b> do tronco pra trás (~10–20°), sem balançar o corpo.',
+        '<b>Desça</b> a barra até a altura do peito superior.',
+        '<b>Controle a subida</b> (fase excêntrica) — não solte o peso de volta.'
+      ],cref:'Base científica: iniciar o movimento retraindo a escápula antes de flexionar o cotovelo ativa mais o latíssimo do dorso.'},
+     {ex:'Desenvolvimento com halteres',id:'fb3b-0-2',sr:'3×10',carga:'12–14 kg',def:true,prog:'fechar 10 → subir 2 kg',mg:'Ombro',obs:'Principal de ombro do dia.',
+      tips:[
+        '<b>Cotovelos</b> alinhados abaixo dos punhos, trajetória levemente em arco.',
+        '<b>Não trave</b> os cotovelos com força no topo do movimento.',
+        '<b>Core contraído</b> o tempo todo pra não arquear a lombar.',
+        '<b>Desça</b> só até onde o ombro ficar confortável — sem forçar amplitude.'
+      ],cref:'Base científica: o desenvolvimento sobrecarrega o manguito rotador; controlar a amplitude reduz risco de impacto no ombro.'},
+     {ex:'Cadeira extensora',id:'fb3b-0-3',sr:'3×12',carga:'ajustar*',def:true,mg:'Pernas',obs:'Quadríceps, segura o pico 1s.',
+      tips:[
+        '<b>Alinhe</b> o eixo da máquina com o seu joelho e ajuste o encosto para as costas apoiadas.',
+        '<b>Estenda</b> de forma controlada e segure o pico da contração ~1s.',
+        '<b>Excêntrica lenta</b> (~2s) na volta — não deixe o peso "cair".',
+        '<b>Sem impulso:</b> evite chutar; o quadríceps deve fazer o trabalho.'
+      ],cref:'Base científica: a pausa isométrica no encurtamento e a excêntrica controlada maximizam a tensão sobre o quadríceps.'},
+     {ex:'Tríceps corda',id:'fb3b-0-4',sr:'3×12–15',carga:'40 kg',def:true,prog:'fechar 15 → +1 placa',mg:'Tríceps',obs:'Abrir a corda no fim do movimento.',
+      tips:[
+        '<b>Cotovelos colados</b> ao tronco durante todo o movimento.',
+        '<b>Abra a corda</b> no final para uma contração de pico mais completa.',
+        '<b>Tronco</b> parado — não incline pra frente pra "ajudar" o peso.',
+        '<b>Extensão completa</b> sem travar forte a articulação do cotovelo.'
+      ],cref:'Base científica: a abertura da corda no final aumenta o recrutamento da cabeça lateral do tríceps.'},
+   ]},
+   {t:'Pós-treino',items:[
+     {ex:'Prancha com retroversão',id:'fb3b-1-0',sr:'3×15',mg:'Abdômen'},
+   ]},
+  ]},
+
+ {id:'fb3c',tab:'C',sub:'Corpo Inteiro',name:'Dia C',focus:'Pernas · Peito · Costas · Braços',type:'treino',
+  blocks:[
+   {t:'Treino',num:true,items:[
+     {ex:'Leg press 45°',id:'fb3c-0-0',sr:'3×10–12',carga:'80–120 kg',def:true,prog:'progredir gradualmente',mg:'Pernas',obs:'Amplitude sem soltar a lombar do encosto.',
+      tips:[
+        '<b>Pés</b> na largura do quadril, na metade da plataforma; empurre pelo meio do pé e calcanhar.',
+        '<b>Não trave</b> os joelhos no topo — pare pouco antes da extensão total para manter tensão e proteger a articulação.',
+        '<b>Amplitude:</b> desça até ~90° de joelho SEM que o quadril role e a lombar descole do encosto ("butt wink").',
+        '<b>Joelhos</b> alinhados aos pés, sem colapsar para dentro.'
+      ],cref:'Base científica: a maior flexão de joelho aumenta o estímulo, mas parar antes do arredondamento lombar protege o disco intervertebral.'},
+     {ex:'Crucifixo (máquina)',id:'fb3c-0-1',sr:'3×12–15',carga:'40 kg',def:true,prog:'fechar 15 → +1 placa',mg:'Peito',obs:'Alongar bem o peitoral.',
+      tips:[
+        '<b>Ajuste o banco</b> pra as alças ficarem na altura do peito.',
+        '<b>Cotovelos</b> levemente flexionados e fixos durante todo o movimento.',
+        '<b>Feche</b> em arco, "abraçando", sem bater as alças com força.',
+        '<b>Alongue</b> controlado na abertura, sem forçar o ombro além do confortável.'
+      ],cref:'Base científica: manter leve flexão de cotovelo protege a articulação e mantém a tensão focada no peitoral.'},
+     {ex:'Remada baixa unilateral na polia',id:'fb3c-0-2',sr:'3×12',carga:'~20 kg/lado',def:true,prog:'subir ao fechar',mg:'Costas',obs:'Amplitude total, alonga na frente.',
+      tips:[
+        '<b>Tronco estável</b>, sem rotacionar durante a puxada.',
+        '<b>Puxe o cotovelo</b> pra trás, próximo ao corpo.',
+        '<b>Amplitude total:</b> alongue bem na frente antes de puxar.',
+        '<b>Sem impulso</b> do quadril pra "ajudar" o movimento.'
+      ],cref:'Base científica: o trabalho unilateral exige mais controle de core — manter o tronco quadrado evita compensações.'},
+     {ex:'Panturrilha em pé',id:'fb3c-0-3',sr:'3×15',carga:'definir*',def:true,mg:'Pernas',obs:'Amplitude total, pausa embaixo.',
+      tips:[
+        '<b>Amplitude total:</b> desça o calcanhar abaixo do nível do degrau (alongado) e suba o máximo (contraído).',
+        '<b>Pausa de ~1s</b> embaixo e no topo — a panturrilha responde muito ao tempo sob tensão.',
+        '<b>Sem quicar:</b> movimento lento e controlado, sem usar o reflexo elástico do tendão.',
+        '<b>Joelhos</b> estendidos (foco no gastrocnêmio).'
+      ],cref:'Base científica: a amplitude completa em alongamento gera mais hipertrofia na panturrilha do que repetições parciais rápidas.'},
+     {ex:'Rosca martelo corda',id:'fb3c-0-4',sr:'3×12',carga:'35 kg',def:true,prog:'subir ao fechar',mg:'Bíceps',obs:'Pega neutra, trabalha braquial.',
+      tips:[
+        '<b>Pegada neutra</b> (palmas se olhando) durante todo o movimento.',
+        '<b>Cotovelos fixos</b> junto ao tronco.',
+        '<b>Recruta</b> braquial e antebraço além do bíceps.',
+        '<b>Controle a descida</b>, sem deixar o peso cair.'
+      ],cref:'Base científica: a pegada neutra ativa mais o braquial, contribuindo pra espessura do braço junto com o bíceps.'},
+     {ex:'Tríceps testa',id:'fb3c-0-5',sr:'3×12',carga:'6 kg',def:true,prog:'subir ao fechar',mg:'Tríceps',obs:'Não abrir os cotovelos.',
+      tips:[
+        '<b>Cotovelos</b> apontando pro teto e fixos durante toda a série.',
+        '<b>Desça</b> a barra em direção à testa/atrás da cabeça, controlado.',
+        '<b>Não abra</b> os cotovelos para os lados — isso "rouba" o tríceps.',
+        '<b>Extensão completa</b> sem hiperestender o cotovelo no topo.'
+      ],cref:'Base científica: cotovelos abertos transferem carga para o ombro e reduzem o estímulo direto no tríceps.'},
+   ]},
+   {t:'Pós-treino',items:[
+     {ex:'Abdominal com rolo',id:'fb3c-1-0',sr:'3×10',mg:'Abdômen'},
+   ]},
+  ]},
+];
+
+/* ============================================================
+   Planos disponíveis — 2, 3 ou 4 dias/semana
+   ============================================================ */
+const PLANS = {
+  '2':{label:'2 dias', kicker:'Cronograma · FB-2D', title:'Full Body A/B',
+    metaHTML:'Nível <b>iniciante-intermediário</b> · <b>2 dias</b> + 5 de descanso ativo · dupla progressão', days:days2,
+    strategies:[
+      {si:'🔁',html:'<b>Frequência 2x/semana:</b> cada músculo é treinado nos dias A e B — mais eficiente que uma vez só, com o mesmo volume total.'},
+      {si:'😴',html:'<b>Recuperação primeiro:</b> com só 2 sessões, priorize dormir 7–9h e ~1,6–2,2 g de proteína/kg pra render o máximo em cada uma.'},
+      {si:'📈',html:'<b>Dupla progressão:</b> fechou o topo da faixa em todas as séries? Suba a carga e volte ao fundo da faixa.'},
+      {si:'🔄',html:'<b>Deload:</b> a cada 5–6 semanas, reduza o volume pela metade por 1 semana para recuperar articulações e sistema nervoso.'},
+    ]},
+  '3':{label:'3 dias', kicker:'Cronograma · FB-3D', title:'Full Body A/B/C',
+    metaHTML:'Nível <b>intermediário</b> · <b>3 dias</b> + 4 de descanso ativo · dupla progressão', days:days3,
+    strategies:[
+      {si:'🔁',html:'<b>Frequência 3x/semana:</b> os dias A, B e C se revezam, treinando cada músculo 3 vezes com padrões de movimento diferentes — evita estagnação.'},
+      {si:'😴',html:'<b>Recuperação primeiro:</b> frequência alta pede sono de 7–9h e ~1,6–2,2 g de proteína/kg pra sustentar o ganho.'},
+      {si:'📈',html:'<b>Dupla progressão:</b> fechou o topo da faixa em todas as séries? Suba a carga e volte ao fundo da faixa.'},
+      {si:'🦵',html:'<b>Fadiga acumulada?</b> Prefira pular 1 exercício acessório do dia a pular a sessão inteira.'},
+      {si:'🔄',html:'<b>Deload:</b> a cada 5–6 semanas, reduza o volume pela metade por 1 semana para recuperar articulações e sistema nervoso.'},
+    ]},
+  '4':{label:'4 dias', kicker:'Cronograma · ABCD-01', title:'Foco em Superiores',
+    metaHTML:'Nível <b>intermediário-avançado</b> · <b>4 dias</b> + 2 de descanso ativo · dupla progressão', days:days4,
+    strategies:[
+      {si:'🎯',html:'No <b>Sábado</b>, troque 1–2 exercícios de tríceps por <b>1 puxada + 1 remada</b>: reduz o excesso de braço/ombro e adiciona costas, equilibrando o painel de grupos musculares.'},
+      {si:'😴',html:'<b>Recuperação primeiro:</b> com esse volume de ombro, sono de 7–9h e ~1,6–2,2 g de proteína/kg são o que sustenta o ganho.'},
+      {si:'📈',html:'<b>Dupla progressão:</b> fechou o topo da faixa em todas as séries? Suba a carga e volte ao fundo da faixa. Registre editando as cargas em cada exercício.'},
+      {si:'🦵',html:'<b>Perna é 1x/semana:</b> nunca pule a Sexta. Se puder, um segundo estímulo leve de perna (2–3 séries) na Quinta acelera resultado sem atrapalhar os superiores.'},
+      {si:'🔄',html:'<b>Deload:</b> a cada 5–6 semanas, reduza o volume pela metade por 1 semana para recuperar articulações e sistema nervoso.'},
+    ]},
+};
+const ACTIVE_PLAN = (PLANS[LS.plan()]? LS.plan() : '4');
+const days = PLANS[ACTIVE_PLAN].days;
+// exercícios visíveis de um bloco (exclui os removidos pelo usuário — reversível)
+const activeItems = bl => bl.items.filter(it=>!LS.removed(it.id));
+
+/* ============================================================
    Cálculos p/ o relatório (séries semanais por grupo muscular)
    ============================================================ */
 const setsOf = sr => { const m=String(sr).match(/^\s*(\d+)/); return m?parseInt(m[1]):0; };
 const trainingDays = days.filter(d=>d.type==='treino');
 
-function daySets(d){ // séries efetivas do bloco principal "Treino"
-  let n=0; d.blocks.forEach(bl=>{ if(bl.num) bl.items.forEach(it=> n+=setsOf(it.sr)); }); return n;
+function daySets(d){ // séries efetivas do bloco principal "Treino" (exclui exercícios removidos)
+  let n=0; d.blocks.forEach(bl=>{ if(bl.num) activeItems(bl).forEach(it=> n+=setsOf(it.sr)); }); return n;
 }
-const plannedTotalSets = trainingDays.reduce((s,d)=>s+daySets(d),0);
+function plannedTotalSets(){ return trainingDays.reduce((s,d)=>s+daySets(d),0); }
 
 // séries semanais planejadas por grupo muscular — qualquer item com mg conta,
-// não só o bloco "Treino" (assim o abdômen dos blocos pré/pós-treino também entra)
+// não só o bloco "Treino" (assim o abdômen dos blocos pré/pós-treino também entra),
+// e exercícios removidos pelo usuário não contam.
 function muscleVolume(){
   const mv={};
-  trainingDays.forEach(d=> d.blocks.forEach(bl=> bl.items.forEach(it=>{
+  trainingDays.forEach(d=> d.blocks.forEach(bl=> activeItems(bl).forEach(it=>{
     if(it.mg){ mv[it.mg]=(mv[it.mg]||0)+setsOf(it.sr); }
   })));
   return mv;
@@ -592,10 +910,18 @@ function muscleVolume(){
 const MG_REF={min:10,max:20};
 const MG_COLOR={Peito:'#FF8FA3',Costas:'#8B95FF',Ombro:'#FFB020',Bíceps:'#2FD3B8',Tríceps:'#4ADE80',Pernas:'#7EE0FF',Abdômen:'#E879F9'};
 
-// todo item de todo bloco de um dia, com sua id fixa (mesma usada no checkbox e na carga)
+// todo item VISÍVEL (não removido) de todo bloco de um dia, com sua id fixa
 function dayExerciseItems(d){
   const out=[];
-  d.blocks.forEach(bl=> bl.items.forEach(it=> out.push({key:it.id, sr:it.sr, mg:it.mg, main:!!bl.num})));
+  d.blocks.forEach(bl=> activeItems(bl).forEach(it=> out.push({key:it.id, sr:it.sr, mg:it.mg, main:!!bl.num})));
+  return out;
+}
+// exercícios removidos (todos os dias do plano ativo) — pra listar e permitir restaurar
+function removedExercises(){
+  const out=[];
+  trainingDays.forEach(d=> d.blocks.forEach(bl=> bl.items.forEach(it=>{
+    if(LS.removed(it.id)) out.push({id:it.id, name:LS.name(it.id)||it.ex, day:d.tab});
+  })));
   return out;
 }
 // estatísticas do que foi REALMENTE marcado como feito (exercício a exercício)
@@ -624,11 +950,30 @@ function doneStats(){
 const tabsEl = document.getElementById('tabs');
 const contentEl = document.getElementById('content');
 
+// cabeçalho + seletor de plano
+document.getElementById('kicker').textContent = PLANS[ACTIVE_PLAN].kicker;
+document.getElementById('h1Title').innerHTML = `${PLANS[ACTIVE_PLAN].title} <span>· Hipertrofia</span>`;
+document.getElementById('metaLine').innerHTML = PLANS[ACTIVE_PLAN].metaHTML;
+const planSwitchEl = document.getElementById('planSwitch');
+['2','3','4'].forEach(p=>{
+  const b=document.createElement('button');
+  b.className='plan-btn'+(p===ACTIVE_PLAN?' on':'');
+  b.textContent=PLANS[p].label;
+  b.onclick=()=>{ if(p!==ACTIVE_PLAN){ LS.setPlan(p); location.reload(); } };
+  planSwitchEl.appendChild(b);
+});
+
 // aba GERAL primeiro
 const geralTab=document.createElement('button');
 geralTab.className='tab geral'; geralTab.setAttribute('role','tab'); geralTab.setAttribute('aria-selected','true');
 geralTab.dataset.id='geral'; geralTab.innerHTML=`Geral<small>Relatório</small>`;
 geralTab.onclick=()=>select('geral'); tabsEl.appendChild(geralTab);
+
+// aba GRUPOS — todos os exercícios do plano ativo, reunidos por grupo muscular
+const gruposTab=document.createElement('button');
+gruposTab.className='tab'; gruposTab.setAttribute('role','tab'); gruposTab.setAttribute('aria-selected','false');
+gruposTab.dataset.id='grupos'; gruposTab.innerHTML=`Grupos<small>Por músculo</small>`;
+gruposTab.onclick=()=>select('grupos'); tabsEl.appendChild(gruposTab);
 
 days.forEach(d=>{
   const b=document.createElement('button');
@@ -645,10 +990,20 @@ const geralSec=document.createElement('section');
 geralSec.className='day active'; geralSec.id='day-geral';
 contentEl.appendChild(geralSec);
 
-// seções dos dias
+// seção GRUPOS
+const gruposSec=document.createElement('section');
+gruposSec.className='day'; gruposSec.id='day-grupos';
+contentEl.appendChild(gruposSec);
+
+// seções dos dias (o conteúdo é montado sob demanda em select(), sempre fresco)
 days.forEach(d=>{
   const sec=document.createElement('section');
   sec.className='day'; sec.id='day-'+d.id;
+  contentEl.appendChild(sec);
+});
+
+// monta o HTML de um dia de treino/descanso, sempre a partir do estado atual (LS)
+function renderDayHTML(d){
   let html=`<div class="day-head"><div class="day-name">${d.name}</div><span class="focus">${d.focus}</span></div>`;
   if(d.type==='rest'){
     html+=`<div class="rest-card"><div class="rest-icon">🚶</div><h3>Descanso ativo</h3><div class="rest-main">${d.rest.main}</div><div class="rest-list">${d.rest.list.map(x=>`<div class="rest-item">${x}</div>`).join('')}</div></div>`;
@@ -656,13 +1011,29 @@ days.forEach(d=>{
     html+=`<div class="check"><span class="check-q">Treinei?</span><div class="check-btns">
       <button class="check-btn yes" data-tr="${d.id}" data-v="yes">Sim</button>
       <button class="check-btn no" data-tr="${d.id}" data-v="no">Não</button></div></div>`;
-    d.blocks.forEach(bl=>{ html+=`<div class="block"><div class="block-title">${bl.t}</div>${bl.items.map((it,idx)=>exRow(it, bl.num?idx+1:0)).join('')}</div>`; });
+    d.blocks.forEach(bl=>{ html+=`<div class="block"><div class="block-title">${bl.t}</div>${activeItems(bl).map((it,idx)=>exRow(it, bl.num?idx+1:0)).join('')}</div>`; });
     html+=`<div class="legend"><h4>Como progredir</h4><p><b>Dupla progressão:</b> fechou o topo da faixa de reps em todas as séries → sobe a carga (composto +2,5 a 5 kg · isolado +1 a 2,5 kg) e volta ao fundo da faixa.</p><p><span class="star">definir*</span> = escolha a carga que te deixe 1–2 reps na reserva no topo da faixa.</p></div>`;
     if(d.note){ const rose=d.note.indexOf('⚠')===0; html+=`<div class="legend" style="border-color:${rose?'rgba(255,107,107,.35)':'rgba(139,149,255,.32)'}"><p style="color:${rose?'var(--rose)':'var(--indigo)'};font-weight:600">${d.note}</p></div>`; }
   }
-  sec.innerHTML=html;
-  contentEl.appendChild(sec);
-});
+  return html;
+}
+
+// aba GRUPOS: todo exercício visível do plano ativo, agrupado por músculo — usa o mesmo exRow(), então
+// carga/checkbox/nome/remover ficam 100% em sincronia com a visão por dia (mesma id, mesmo LS).
+function renderGrupos(){
+  const order=['Ombro','Tríceps','Pernas','Bíceps','Costas','Peito','Abdômen'];
+  const byGroup={}; const other=[];
+  trainingDays.forEach(d=> d.blocks.forEach(bl=> activeItems(bl).forEach(it=>{
+    if(it.mg){ (byGroup[it.mg]=byGroup[it.mg]||[]).push({it, day:d.tab}); }
+    else other.push({it, day:d.tab});
+  })));
+  const groupsHtml = order.filter(g=>byGroup[g]&&byGroup[g].length).map(g=>{
+    const rows = byGroup[g].map(({it,day})=> exRow(it,0,day)).join('');
+    return `<div class="block"><div class="block-title">${g} <span style="color:${MG_COLOR[g]}">●</span></div>${rows}</div>`;
+  }).join('');
+  const otherHtml = other.length? `<div class="block"><div class="block-title">Mobilidade / Aquecimento</div>${other.map(({it,day})=>exRow(it,0,day)).join('')}</div>` : '';
+  gruposSec.innerHTML = `<div class="day-head"><div class="day-name">Grupos</div><span class="focus">Todos os exercícios · ${PLANS[ACTIVE_PLAN].title}</span></div>${groupsHtml}${otherHtml}`;
+}
 
 /* ============================================================
    GERAL — construção do relatório (dinâmico)
@@ -696,11 +1067,12 @@ function renderGeral(){
   const pct = Math.round(done/total*100);
   const ds = doneStats();
   const doneSets = ds.doneSets;
+  const totalSets = plannedTotalSets();
   const feel = LS.feel();
   const fd = feelData();
 
   // veredito de intensidade (0..100 na barra) combinando volume feito + sensação
-  let load = plannedTotalSets? doneSets/plannedTotalSets : 0; // 0..1
+  let load = totalSets? doneSets/totalSets : 0; // 0..1
   let pos = Math.min(100, Math.round(load*85 + (feel? (parseInt(feel)-1)/4*15 : 0)));
   let verdict, vword;
   if(done===0){ verdict='Marque seus treinos e sua sensação da semana para gerar a leitura de intensidade.'; vword='Sem dados'; pos=2; }
@@ -721,6 +1093,12 @@ function renderGeral(){
     if(v>MG_REF.max){ tag='high'; tw='Alto'; } else if(v<MG_REF.min){ tag='low'; tw='Baixo'; }
     return `<div class="mrow"><div class="mrow-top"><span class="mn">${g}<span class="mtag ${tag}">${tw}</span></span><span class="mv"><b>${dv}</b>/${v} séries/sem</span></div><div class="mbar"><span style="width:${w}%;background:${MG_COLOR[g]};opacity:.28"></span><span style="width:${dw}%;background:${MG_COLOR[g]}"></span></div></div>`;
   }).join('');
+  // nota dinâmica: aponta o grupo de maior e menor volume real do plano ativo
+  const rankedG = order.filter(g=>mv[g]).sort((a,b)=>(mv[b]||0)-(mv[a]||0));
+  const balanceNote = rankedG.length>=2
+    ? `<b>${rankedG[0]}</b> concentra o maior volume da semana e <b>${rankedG[rankedG.length-1]}</b> o menor — normal em programas com foco definido; use os dias de descanso e o sono para sustentar esse volume.`
+    : 'Marque exercícios como feitos pra ver o comparativo planejado vs. realizado.';
+  const removed = removedExercises();
 
   // status por dia (treinei sim/não + progresso de exercícios marcados)
   const dlist=trainingDays.map(d=>{
@@ -759,7 +1137,7 @@ function renderGeral(){
     <div class="stat-row">
       <div class="stat"><b style="color:var(--green)">${done}</b><small>Feitos</small></div>
       <div class="stat"><b style="color:var(--amber)">${doneSets}</b><small>Séries feitas</small></div>
-      <div class="stat"><b style="color:var(--indigo)">${plannedTotalSets}</b><small>Planejadas</small></div>
+      <div class="stat"><b style="color:var(--indigo)">${totalSets}</b><small>Planejadas</small></div>
     </div>
 
     <div class="card">
@@ -789,19 +1167,22 @@ function renderGeral(){
     <div class="card">
       <h4>⚖️ Equilíbrio muscular <span style="font-size:9px;color:var(--muted);letter-spacing:.04em">(alvo 10–20 séries/sem)</span></h4>
       ${mbars}
-      <div class="m-note">Barra clara = planejado · barra cheia = <b style="color:var(--text)">o que você já marcou como feito</b>. Por ser um bloco "foco em superiores", <b>ombro</b> e <b>tríceps</b> puxam volume alto — monitore pra não sobrecarregar.</div>
+      <div class="m-note">Barra clara = planejado · barra cheia = <b style="color:var(--text)">o que você já marcou como feito</b>. ${balanceNote}</div>
     </div>
 
     <div class="card">
       <h4>🧠 Estratégias & melhorias</h4>
       <div class="strat">
-        <div class="strat-item"><span class="si">🎯</span><div>No <b>Sábado</b>, troque 1–2 exercícios de tríceps por <b>1 puxada + 1 remada</b>: reduz o excesso de braço/ombro e adiciona costas, equilibrando o painel acima.</div></div>
-        <div class="strat-item"><span class="si">😴</span><div><b>Recuperação primeiro:</b> com esse volume de ombro, sono de 7–9h e ~1,6–2,2 g de proteína/kg são o que sustenta o ganho.</div></div>
-        <div class="strat-item"><span class="si">📈</span><div><b>Dupla progressão:</b> fechou o topo da faixa em todas as séries? Suba a carga e volte ao fundo da faixa. Registre editando as cargas em cada exercício.</div></div>
-        <div class="strat-item"><span class="si">🦵</span><div><b>Perna é 1x/semana:</b> nunca pule a Sexta. Se puder, um segundo estímulo leve de perna (2–3 séries) na Quinta acelera resultado sem atrapalhar os superiores.</div></div>
-        <div class="strat-item"><span class="si">🔄</span><div><b>Deload:</b> a cada 5–6 semanas, reduza o volume pela metade por 1 semana para recuperar articulações e sistema nervoso.</div></div>
+        ${PLANS[ACTIVE_PLAN].strategies.map(s=>`<div class="strat-item"><span class="si">${s.si}</span><div>${s.html}</div></div>`).join('')}
       </div>
     </div>
+
+    ${removed.length? `
+    <div class="card">
+      <h4>🗑 Exercícios removidos <span style="font-size:9px;color:var(--muted);letter-spacing:.04em">(${removed.length})</span></h4>
+      <div class="dlist">${removed.map(r=>`<div class="drow"><span class="dn">${r.day}</span><span class="df">${r.name}</span><div class="dbtns"><button class="mini yes" data-exrestore="${r.id}">Restaurar</button></div></div>`).join('')}</div>
+      <div class="m-note">Remover um exercício tira ele da lista e das contas do relatório, sem apagar nenhuma carga salva. Restaurar recarrega o app.</div>
+    </div>` : ''}
 
     <div class="card">
       <h4>🎯 O que fazer no treino de hoje</h4>
@@ -830,12 +1211,13 @@ function syncCheckBtns(id){
 }
 
 // delegação de eventos
+// um mesmo exercício pode estar renderizado em 2 lugares ao mesmo tempo (aba do dia
+// + aba Grupos) — por isso usamos querySelectorAll aqui, nunca querySelector, pra
+// manter as duas cópias em sincronia.
 function syncExCheck(key){
-  const btn=document.querySelector(`[data-exdone="${key}"]`);
-  const wrap=document.querySelector(`[data-exwrap="${key}"]`);
   const on=LS.done(key);
-  if(btn) btn.classList.toggle('done', on);
-  if(wrap) wrap.classList.toggle('done', on);
+  document.querySelectorAll(`[data-exdone="${key}"]`).forEach(btn=> btn.classList.toggle('done', on));
+  document.querySelectorAll(`[data-exwrap="${key}"]`).forEach(wrap=> wrap.classList.toggle('done', on));
 }
 function syncAllExChecks(){
   document.querySelectorAll('.ex-check').forEach(btn=> syncExCheck(btn.dataset.exdone));
@@ -849,6 +1231,25 @@ contentEl.addEventListener('click', e=>{
     LS.setDone(key, on);
     syncExCheck(key);
     renderGeral();
+    return;
+  }
+  const del=e.target.closest('[data-exdel]');
+  if(del){
+    const key=del.dataset.exdel;
+    const name=del.closest('.ex').querySelector('.ex-name').textContent.trim();
+    if(confirm(`Remover "${name}" do treino? Você pode restaurar depois na aba Geral — nenhuma carga é apagada.`)){
+      LS.setRemoved(key, true);
+      document.querySelectorAll(`[data-exwrap="${key}"]`).forEach(row=> row.remove());
+      renderGeral();
+      toast('Exercício removido — restaure na aba Geral');
+    }
+    return;
+  }
+  const res=e.target.closest('[data-exrestore]');
+  if(res){
+    LS.setRemoved(res.dataset.exrestore, false);
+    toast('Exercício restaurado — recarregando…');
+    setTimeout(()=>location.reload(), 400);
     return;
   }
   const tr=e.target.closest('[data-tr]');
@@ -911,11 +1312,20 @@ function select(id){
   document.querySelectorAll('.tab').forEach(t=> t.setAttribute('aria-selected', t.dataset.id===id?'true':'false'));
   document.querySelectorAll('.day').forEach(s=> s.classList.toggle('active', s.id==='day-'+id));
   if(id==='geral') renderGeral();
+  else if(id==='grupos') renderGrupos();
+  else {
+    // dias de treino/descanso são sempre remontados na hora, a partir do LS —
+    // garante que nunca fiquem desatualizados em relação à aba Grupos.
+    const d = days.find(x=>x.id===id);
+    if(d){
+      document.getElementById('day-'+id).innerHTML = renderDayHTML(d);
+      if(d.type==='treino') syncCheckBtns(d.id);
+    }
+  }
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 // init
-trainingDays.forEach(d=>syncCheckBtns(d.id));
 updateDots();
 renderGeral();
 </script>
