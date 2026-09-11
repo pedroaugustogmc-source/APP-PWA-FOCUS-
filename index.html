@@ -80,7 +80,7 @@
   .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px}
   .chip{font-size:12px; font-weight:600; padding:4px 9px; border-radius:8px; border:1px solid var(--line); background:var(--surface2); color:var(--muted); display:inline-flex; align-items:center; gap:5px; white-space:nowrap}
   .chip .lbl{font-size:9px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); opacity:.8}
-  .chip.sr{color:var(--text)}
+  .chip.sr{color:var(--text); cursor:text}
   .chip.sr b{font-family:var(--disp); font-weight:600; font-size:15px}
   .chip.load{color:var(--text); border-color:rgba(255,176,32,.35); cursor:text}
   .chip.load b{color:var(--amber); font-family:var(--disp); font-weight:600; font-size:14px}
@@ -90,7 +90,7 @@
   .load-input{font-family:var(--disp); font-weight:600; font-size:14px; color:var(--amber); background:transparent; border:none; outline:none; width:auto; min-width:38px; max-width:120px; padding:0; text-align:left; field-sizing:content}
   .load-input::placeholder{color:var(--muted)}
   .chip.load.edited{border-color:var(--amber); background:rgba(255,176,32,.1)}
-  .chip.load .pencil{font-size:10px; opacity:.5}
+  .chip .pencil{font-size:10px; opacity:.5}
   .obs{margin-top:8px; font-size:12.5px; color:var(--muted); line-height:1.45}
   .obs::before{content:"\203A  "; color:var(--indigo); font-weight:700}
   /* Tips (dicas) */
@@ -194,8 +194,40 @@
   .btn-reset:active{transform:scale(.98)}
   .reset-note{text-align:center; font-size:11px; color:var(--muted); margin-top:8px; opacity:.75}
   footer{text-align:center; padding:26px 14px 8px; color:var(--muted); font-size:11.5px}
-  .toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px); background:var(--surface2); border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:11px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:.25s; z-index:50; box-shadow:0 8px 24px rgba(0,0,0,.4)}
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  .toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px); background:var(--surface2); border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:11px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:.25s; z-index:50; box-shadow:0 8px 24px rgba(0,0,0,.4); display:flex; align-items:center; gap:14px; max-width:88vw}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto}
+  .toast-action{background:none; border:none; color:var(--amber); font-family:var(--disp); font-weight:700; letter-spacing:.05em; text-transform:uppercase; font-size:12px; cursor:pointer; padding:0; flex:0 0 auto}
+  /* Grupos: busca, filtro por categoria, frequência semanal */
+  .cat-filters{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; margin-bottom:14px; scrollbar-width:none; -webkit-overflow-scrolling:touch}
+  .cat-filters::-webkit-scrollbar{display:none}
+  .cat-chip{flex:0 0 auto; font-family:var(--disp); font-weight:600; font-size:11px; letter-spacing:.04em; text-transform:uppercase; padding:7px 13px; border-radius:20px; border:1px solid var(--line); background:var(--surface2); color:var(--muted); cursor:pointer; transition:.15s}
+  .cat-chip.on{background:var(--amber); border-color:var(--amber); color:var(--bg)}
+  .freq-group{margin-bottom:12px}
+  .freq-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; padding:0 2px; gap:8px}
+  .freq-name{font-weight:600; font-size:13.5px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .freq-badge{flex:0 0 auto; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--indigo); background:rgba(139,149,255,.14); border:1px solid rgba(139,149,255,.3); padding:3px 8px; border-radius:20px}
+  .freq-checklist{display:flex; align-items:center; gap:6px; margin-bottom:9px; padding:0 2px; flex-wrap:wrap}
+  .freq-pill{width:24px; height:24px; border-radius:7px; border:1px solid var(--line); background:var(--surface2); color:var(--muted); font-family:var(--disp); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto; padding:0; transition:.15s}
+  .freq-pill.done{background:var(--green); border-color:var(--green); color:#08210f}
+  .freq-count{font-size:11px; color:var(--muted); margin-left:4px}
+  /* Séries×reps editável */
+  .sr-input{font-family:var(--disp); font-weight:600; font-size:15px; color:var(--text); background:transparent; border:none; outline:none; width:auto; min-width:34px; max-width:90px; padding:0; text-align:left; field-sizing:content}
+  .chip.sr.edited{border-color:rgba(139,149,255,.4); background:rgba(139,149,255,.08)}
+  .chip.sr.edited b, .chip.sr.edited .sr-input{color:var(--indigo)}
+  .evo-week-grid{display:grid; grid-template-columns:repeat(13, 1fr); gap:3px; margin:10px 0}
+  .evo-cell{aspect-ratio:1; border-radius:3px; background:var(--surface2); border:1px solid var(--line)}
+  .evo-cell.acc1{background:rgba(255,176,32,.25)}
+  .evo-cell.acc2{background:rgba(255,176,32,.48)}
+  .evo-cell.acc3{background:rgba(255,176,32,.75)}
+  .evo-cell.deload{background:rgba(47,211,184,.55); border-color:rgba(47,211,184,.6)}
+  .evo-cell.now{outline:2px solid var(--text); outline-offset:1px}
+  .evo-cell.past{opacity:.4}
+  .evo-legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-size:10.5px; color:var(--muted)}
+  .evo-legend span{display:flex; align-items:center; gap:5px}
+  .evo-dot{width:9px; height:9px; border-radius:3px; display:inline-block; background:var(--surface2)}
+  .evo-dot.acc1{background:rgba(255,176,32,.4)}
+  .evo-dot.acc3{background:rgba(255,176,32,.85)}
+  .evo-dot.deload{background:rgba(47,211,184,.75)}
 </style>
 </head>
 <body>
@@ -229,6 +261,8 @@ function markChange(){
 const LS = {
   load:  k => localStorage.getItem('load:'+k),
   setLoad:(k,v)=>{ localStorage.setItem('load:'+k, v); markChange(); },
+  sr:  k => localStorage.getItem('sr:'+k),                // séries×reps, se o usuário editou
+  setSr:(k,v)=>{ v? localStorage.setItem('sr:'+k, v) : localStorage.removeItem('sr:'+k); markChange(); },
   name:  k => localStorage.getItem('name:'+k),            // nome do exercício, se o usuário renomeou
   setName:(k,v)=>{ v? localStorage.setItem('name:'+k, v) : localStorage.removeItem('name:'+k); markChange(); },
   removed:  k => localStorage.getItem('removed:'+k)==='1', // exercício removido do treino (reversível)
@@ -241,6 +275,12 @@ const LS = {
   setDone:(k,v)=>{ v? localStorage.setItem('done:'+k,'1') : localStorage.removeItem('done:'+k); markChange(); },
   feel:  ()=> localStorage.getItem('feel:week'),
   setFeel:v=>{ v? localStorage.setItem('feel:week', v) : localStorage.removeItem('feel:week'); markChange(); },
+  evoStart: ()=>{ // início do ciclo anual de periodização (auto-definido na 1ª visita à aba Evolução)
+    let v = localStorage.getItem('evo:start');
+    if(!v){ v = new Date().toISOString().slice(0,10); localStorage.setItem('evo:start', v); }
+    return v;
+  },
+  setEvoStart:(v)=>{ localStorage.setItem('evo:start', v); markChange(); },
   resetWeek(){ // zera SÓ o checklist (dia + exercícios) e a sensação — mantém cargas, nomes e remoções
     Object.keys(localStorage).forEach(k=>{ if(k.startsWith('trained:')||k.startsWith('done:')||k==='feel:week') localStorage.removeItem(k); });
     markChange();
@@ -294,8 +334,20 @@ async function initCloudSession(){
   renderGeral();
 }
 
-const toast = (()=>{ const el=document.getElementById('toast'); let t;
-  return msg=>{ el.textContent=msg; el.classList.add('show'); clearTimeout(t); t=setTimeout(()=>el.classList.remove('show'),1600); };
+const toast = (()=>{
+  const el=document.getElementById('toast');
+  let t;
+  return (msg, opts)=>{
+    clearTimeout(t);
+    if(opts && opts.actionLabel){
+      el.innerHTML = `<span>${msg}</span><button class="toast-action" type="button">${opts.actionLabel}</button>`;
+      el.querySelector('.toast-action').onclick = ()=>{ opts.onAction(); el.classList.remove('show'); clearTimeout(t); };
+    } else {
+      el.textContent = msg;
+    }
+    el.classList.add('show');
+    t=setTimeout(()=>el.classList.remove('show'), opts&&opts.actionLabel? 5000 : 1600);
+  };
 })();
 
 /* ============================================================
@@ -306,7 +358,13 @@ const chip = (cls,lbl,val)=>`<span class="chip ${cls}"><span class="lbl">${lbl}<
 
 function exRow(e,n,dayBadge){
   const key = e.id; // identidade fixa e permanente do exercício — nunca muda com a posição no array
-  let chips = chip('sr','Séries×Reps',`<b>${e.sr}</b>`);
+  const savedSr = LS.sr(key);
+  const srVal = savedSr!==null ? savedSr : e.sr;
+  const srEdited = savedSr!==null && savedSr!==e.sr;
+  let chips = `<span class="chip sr${srEdited?' edited':''}" data-srkey="${key}">
+      <span class="lbl">Séries×Reps</span>
+      <input class="sr-input" value="${srVal.replace(/"/g,'&quot;')}" data-default="${e.sr.replace(/"/g,'&quot;')}" aria-label="Editar séries e reps de ${e.ex.replace(/"/g,'&quot;')}" spellcheck="false">
+      <span class="pencil">✎</span></span>`;
   if(e.carga!==undefined){
     const saved = LS.load(key);
     const val = saved!==null ? saved : e.carga;
@@ -338,7 +396,7 @@ const days4 = [
    {t:'Pré-treino',items:[
      {ex:'Respiração + retroversão pélvica',id:'seg-0-0',sr:'3×10',mg:'Abdômen',obs:'Ativação de core, ritmo lento.'},
      {ex:'Deslizamento na parede',id:'seg-0-1',sr:'3×15',obs:'Aquece ombro — escápula desliza colada na parede.'},
-     {ex:'Pull face',id:'seg-0-2',sr:'3×15',carga:'leve',def:true,obs:'Prepara rotadores e posterior de ombro.'},
+     {ex:'Pull face',id:'seg-0-2',sr:'3×15',carga:'leve',def:true,mg:'Ombro',obs:'Prepara rotadores e posterior de ombro.'},
    ]},
    {t:'Treino',num:true,items:[
      {ex:'Supino inclinado com halteres',id:'seg-1-0',sr:'4×11',carga:'14–16 kg',prog:'4×11 c/16 → 18 kg',mg:'Peito',obs:'Descida controlada ~2s.',
@@ -408,7 +466,7 @@ const days4 = [
  {id:'ter',tab:'Ter',sub:'Puxar',name:'Terça',focus:'Costas · Bíceps · Abdominal',type:'treino',
   blocks:[
    {t:'Pré-treino',items:[
-     {ex:'Pull face leve',id:'ter-0-0',sr:'3×20',carga:'10 kg',obs:'Saúde de ombro, foco nas escápulas.'},
+     {ex:'Pull face leve',id:'ter-0-0',sr:'3×20',carga:'10 kg',mg:'Ombro',obs:'Saúde de ombro, foco nas escápulas.'},
      {ex:'Ativação posterior de ombro (crucifixo c/ miniband)',id:'ter-0-1',sr:'3×15',carga:'miniband',def:true,obs:'Ativa o posterior antes de puxar pesado.'},
    ]},
    {t:'Treino',num:true,items:[
@@ -950,10 +1008,22 @@ const activeItems = bl => bl.items.filter(it=>!LS.removed(it.id));
    Cálculos p/ o relatório (séries semanais por grupo muscular)
    ============================================================ */
 const setsOf = sr => { const m=String(sr).match(/^\s*(\d+)/); return m?parseInt(m[1]):0; };
+const effectiveSr = it => LS.sr(it.id) || it.sr; // usa o sr editado pelo usuário, se houver
 const trainingDays = days.filter(d=>d.type==='treino');
 
+// exercícios adicionados manualmente pelo usuário (aba Grupos), por dia do plano ativo
+function getCustomItems(dayId){
+  try{ return JSON.parse(localStorage.getItem('custom:'+ACTIVE_PLAN+':'+dayId)||'[]'); } catch(e){ return []; }
+}
+function saveCustomItems(dayId, list){ localStorage.setItem('custom:'+ACTIVE_PLAN+':'+dayId, JSON.stringify(list)); markChange(); }
+// blocos de um dia incluindo, se houver, os exercícios personalizados como um bloco extra
+function blocksWithCustom(d){
+  const custom = getCustomItems(d.id);
+  return custom.length ? [...d.blocks, {t:'Meus exercícios', num:true, items:custom}] : d.blocks;
+}
+
 function daySets(d){ // séries efetivas do bloco principal "Treino" (exclui exercícios removidos)
-  let n=0; d.blocks.forEach(bl=>{ if(bl.num) activeItems(bl).forEach(it=> n+=setsOf(it.sr)); }); return n;
+  let n=0; blocksWithCustom(d).forEach(bl=>{ if(bl.num) activeItems(bl).forEach(it=> n+=setsOf(effectiveSr(it))); }); return n;
 }
 function plannedTotalSets(){ return trainingDays.reduce((s,d)=>s+daySets(d),0); }
 
@@ -962,8 +1032,8 @@ function plannedTotalSets(){ return trainingDays.reduce((s,d)=>s+daySets(d),0); 
 // e exercícios removidos pelo usuário não contam.
 function muscleVolume(){
   const mv={};
-  trainingDays.forEach(d=> d.blocks.forEach(bl=> activeItems(bl).forEach(it=>{
-    if(it.mg){ mv[it.mg]=(mv[it.mg]||0)+setsOf(it.sr); }
+  trainingDays.forEach(d=> blocksWithCustom(d).forEach(bl=> activeItems(bl).forEach(it=>{
+    if(it.mg){ mv[it.mg]=(mv[it.mg]||0)+setsOf(effectiveSr(it)); }
   })));
   return mv;
 }
@@ -974,13 +1044,13 @@ const MG_COLOR={Peito:'#FF8FA3',Costas:'#8B95FF',Ombro:'#FFB020',Bíceps:'#2FD3B
 // todo item VISÍVEL (não removido) de todo bloco de um dia, com sua id fixa
 function dayExerciseItems(d){
   const out=[];
-  d.blocks.forEach(bl=> activeItems(bl).forEach(it=> out.push({key:it.id, sr:it.sr, mg:it.mg, main:!!bl.num})));
+  blocksWithCustom(d).forEach(bl=> activeItems(bl).forEach(it=> out.push({key:it.id, sr:effectiveSr(it), mg:it.mg, main:!!bl.num})));
   return out;
 }
 // exercícios removidos (todos os dias do plano ativo) — pra listar e permitir restaurar
 function removedExercises(){
   const out=[];
-  trainingDays.forEach(d=> d.blocks.forEach(bl=> bl.items.forEach(it=>{
+  trainingDays.forEach(d=> blocksWithCustom(d).forEach(bl=> bl.items.forEach(it=>{
     if(LS.removed(it.id)) out.push({id:it.id, name:LS.name(it.id)||it.ex, day:d.tab});
   })));
   return out;
@@ -1036,6 +1106,12 @@ gruposTab.className='tab'; gruposTab.setAttribute('role','tab'); gruposTab.setAt
 gruposTab.dataset.id='grupos'; gruposTab.innerHTML=`Grupos<small>Por músculo</small>`;
 gruposTab.onclick=()=>select('grupos'); tabsEl.appendChild(gruposTab);
 
+// aba EVOLUÇÃO — plano anual de periodização (progressão de séries ao longo do ano)
+const evoTab=document.createElement('button');
+evoTab.className='tab'; evoTab.setAttribute('role','tab'); evoTab.setAttribute('aria-selected','false');
+evoTab.dataset.id='evolucao'; evoTab.innerHTML=`Evolução<small>Plano anual</small>`;
+evoTab.onclick=()=>select('evolucao'); tabsEl.appendChild(evoTab);
+
 days.forEach(d=>{
   const b=document.createElement('button');
   b.className='tab'+(d.type==='rest'?' rest':'');
@@ -1056,6 +1132,11 @@ const gruposSec=document.createElement('section');
 gruposSec.className='day'; gruposSec.id='day-grupos';
 contentEl.appendChild(gruposSec);
 
+// seção EVOLUÇÃO
+const evoSec=document.createElement('section');
+evoSec.className='day'; evoSec.id='day-evolucao';
+contentEl.appendChild(evoSec);
+
 // seções dos dias (o conteúdo é montado sob demanda em select(), sempre fresco)
 days.forEach(d=>{
   const sec=document.createElement('section');
@@ -1072,7 +1153,7 @@ function renderDayHTML(d){
     html+=`<div class="check"><span class="check-q">Treinei?</span><div class="check-btns">
       <button class="check-btn yes" data-tr="${d.id}" data-v="yes">Sim</button>
       <button class="check-btn no" data-tr="${d.id}" data-v="no">Não</button></div></div>`;
-    d.blocks.forEach(bl=>{ html+=`<div class="block"><div class="block-title">${bl.t}</div>${activeItems(bl).map((it,idx)=>exRow(it, bl.num?idx+1:0)).join('')}</div>`; });
+    blocksWithCustom(d).forEach(bl=>{ html+=`<div class="block"><div class="block-title">${bl.t}</div>${activeItems(bl).map((it,idx)=>exRow(it, bl.num?idx+1:0)).join('')}</div>`; });
     html+=`<div class="legend"><h4>Como progredir</h4><p><b>Dupla progressão:</b> fechou o topo da faixa de reps em todas as séries → sobe a carga (composto +2,5 a 5 kg · isolado +1 a 2,5 kg) e volta ao fundo da faixa.</p><p><span class="star">definir*</span> = escolha a carga que te deixe 1–2 reps na reserva no topo da faixa.</p></div>`;
     if(d.note){ const rose=d.note.indexOf('⚠')===0; html+=`<div class="legend" style="border-color:${rose?'rgba(255,107,107,.35)':'rgba(139,149,255,.32)'}"><p style="color:${rose?'var(--rose)':'var(--indigo)'};font-weight:600">${d.note}</p></div>`; }
   }
@@ -1080,20 +1161,200 @@ function renderDayHTML(d){
 }
 
 // aba GRUPOS: todo exercício visível do plano ativo, agrupado por músculo — usa o mesmo exRow(), então
-// carga/checkbox/nome/remover ficam 100% em sincronia com a visão por dia (mesma id, mesmo LS).
-function renderGrupos(){
-  const order=['Ombro','Tríceps','Pernas','Bíceps','Costas','Peito','Abdômen'];
-  const byGroup={}; const other=[];
-  trainingDays.forEach(d=> d.blocks.forEach(bl=> activeItems(bl).forEach(it=>{
-    if(it.mg){ (byGroup[it.mg]=byGroup[it.mg]||[]).push({it, day:d.tab}); }
-    else other.push({it, day:d.tab});
-  })));
-  const groupsHtml = order.filter(g=>byGroup[g]&&byGroup[g].length).map(g=>{
-    const rows = byGroup[g].map(({it,day})=> exRow(it,0,day)).join('');
-    return `<div class="block"><div class="block-title">${g} <span style="color:${MG_COLOR[g]}">●</span></div>${rows}</div>`;
+// carga/séries/checkbox/nome/remover ficam 100% em sincronia com a visão por dia (mesma id, mesmo LS).
+const MG_ORDER=['Ombro','Tríceps','Pernas','Bíceps','Costas','Peito','Abdômen'];
+const gruposState = { search:'', category:'all', showAddForm:false };
+
+function categoryChipsHTML(){
+  const cats=[{v:'all',l:'Todos'}, ...MG_ORDER.map(g=>({v:g,l:g})), {v:'outros',l:'Mobilidade'}];
+  return cats.map(c=>`<button class="cat-chip${gruposState.category===c.v?' on':''}" data-cat="${c.v}" type="button">${c.l}</button>`).join('');
+}
+
+// agrupa entradas {it,day} pelo nome ORIGINAL do exercício (estável mesmo se uma
+// instância específica for renomeada) — é essa lista que vira "Nx/semana".
+function groupEntriesByName(list){
+  const map = new Map();
+  list.forEach(entry=>{
+    const k = entry.it.ex;
+    if(!map.has(k)) map.set(k, []);
+    map.get(k).push(entry);
+  });
+  return [...map.values()];
+}
+
+// renderiza um grupo de 1+ instâncias do MESMO exercício (mesmo nome original).
+// 1 instância = exatamente como antes. 2+ = cabeçalho "Nx/semana" com checklist
+// compacta (mesmos ids/localStorage do checkbox normal) + os cards completos abaixo.
+function renderExerciseGroup(instances){
+  if(instances.length===1){ const {it,day}=instances[0]; return exRow(it,0,day); }
+  const pills = instances.map((inst,i)=>{
+    const on = LS.done(inst.it.id);
+    return `<button class="freq-pill${on?' done':''}" data-exdone="${inst.it.id}" type="button" aria-label="Marcar ${inst.day} de ${instances[0].it.ex.replace(/"/g,'&quot;')} como feito">${i+1}</button>`;
   }).join('');
-  const otherHtml = other.length? `<div class="block"><div class="block-title">Mobilidade / Aquecimento</div>${other.map(({it,day})=>exRow(it,0,day)).join('')}</div>` : '';
-  gruposSec.innerHTML = `<div class="day-head"><div class="day-name">Grupos</div><span class="focus">Todos os exercícios · ${PLANS[ACTIVE_PLAN].title}</span></div>${groupsHtml}${otherHtml}`;
+  const doneCount = instances.filter(inst=>LS.done(inst.it.id)).length;
+  const cards = instances.map(({it,day})=> exRow(it,0,day)).join('');
+  return `<div class="freq-group">
+    <div class="freq-head"><span class="freq-name">${instances[0].it.ex}</span><span class="freq-badge">${instances.length}×/semana</span></div>
+    <div class="freq-checklist">${pills}<span class="freq-count">${doneCount}/${instances.length} feitas essa semana</span></div>
+    ${cards}
+  </div>`;
+}
+
+function buildGruposResultsHTML(){
+  const q = gruposState.search.trim().toLowerCase();
+  const cat = gruposState.category;
+  const byGroup={}; const other=[];
+  trainingDays.forEach(d=> blocksWithCustom(d).forEach(bl=> activeItems(bl).forEach(it=>{
+    const displayName = LS.name(it.id)||it.ex;
+    if(q && !displayName.toLowerCase().includes(q) && !it.ex.toLowerCase().includes(q)) return;
+    const entry = {it, day:d.tab};
+    if(it.mg){ (byGroup[it.mg]=byGroup[it.mg]||[]).push(entry); } else { other.push(entry); }
+  })));
+  const groupsToShow = cat==='all' ? MG_ORDER : MG_ORDER.filter(g=>g===cat);
+  const showOther = cat==='all' || cat==='outros';
+
+  let html='';
+  groupsToShow.forEach(g=>{
+    if(!byGroup[g] || !byGroup[g].length) return;
+    html += `<div class="block"><div class="block-title">${g} <span style="color:${MG_COLOR[g]}">●</span></div>${groupEntriesByName(byGroup[g]).map(renderExerciseGroup).join('')}</div>`;
+  });
+  if(showOther && other.length){
+    html += `<div class="block"><div class="block-title">Mobilidade / Aquecimento</div>${groupEntriesByName(other).map(renderExerciseGroup).join('')}</div>`;
+  }
+  if(!html) html = `<div class="m-note" style="text-align:center; padding:24px 0">Nenhum exercício encontrado${q?` para "${q}"`:''}.</div>`;
+  return html;
+}
+function renderGruposResults(){
+  const el = document.getElementById('gruposResults');
+  if(el) el.innerHTML = buildGruposResultsHTML();
+}
+
+function addExerciseFormHTML(){
+  if(!gruposState.showAddForm) return '';
+  const preselectMg = MG_ORDER.includes(gruposState.category) ? gruposState.category : '';
+  const mgOptions = MG_ORDER.map(g=>`<option value="${g}"${g===preselectMg?' selected':''}>${g}</option>`).join('');
+  const dayOptions = trainingDays.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+  return `<div class="card" id="addExForm" style="border-color:rgba(255,176,32,.35)">
+    <h4>➕ Adicionar exercício</h4>
+    <input id="newExName" class="acct-input" placeholder="Nome do exercício" autocomplete="off">
+    <select id="newExMg" class="acct-input"><option value="">Grupo muscular (opcional)</option>${mgOptions}</select>
+    <select id="newExDay" class="acct-input">${dayOptions}</select>
+    <input id="newExSr" class="acct-input" placeholder="Séries×Reps (ex: 3×12)" autocomplete="off">
+    <input id="newExCarga" class="acct-input" placeholder="Carga inicial (opcional)" autocomplete="off">
+    <div class="acct-btns">
+      <button class="mini yes" id="saveNewEx">Adicionar</button>
+      <button class="mini" id="cancelNewEx">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+function renderGrupos(){
+  gruposSec.innerHTML = `
+    <div class="day-head"><div class="day-name">Grupos</div><span class="focus">Todos os exercícios · ${PLANS[ACTIVE_PLAN].title}</span></div>
+    <input type="search" id="gruposSearch" class="acct-input" placeholder="🔎 Buscar exercício..." value="${gruposState.search.replace(/"/g,'&quot;')}" autocomplete="off">
+    <div class="cat-filters">${categoryChipsHTML()}</div>
+    <div id="gruposResults"></div>
+    <div id="addExArea">${addExerciseFormHTML()}</div>
+    ${gruposState.showAddForm? '' : '<button class="btn-reset" id="addExBtn" style="border-color:rgba(255,176,32,.4); color:var(--amber)">➕ Adicionar exercício</button>'}
+  `;
+  renderGruposResults();
+}
+
+/* ============================================================
+   EVOLUÇÃO ANUAL — periodização em blocos (mesociclos de 4 semanas:
+   3 de progressão de volume + 1 de deload), com o volume atual do
+   plano ativo (muscleVolume()) como baseline. A meta de séries/semana
+   sobe a cada mesociclo (até um platô realista) e cai no deload.
+   ============================================================ */
+const EVO_MESO_LEN = 4;      // semanas por mesociclo
+const EVO_YEAR_WEEKS = 52;
+const EVO_WEEK_MULT = [1, 1.08, 1.16, 0.6]; // semana 1,2,3 (progressão) e 4 (deload) dentro do mesociclo
+function evoBlockMultiplier(block){ return 1 + 0.03*Math.min(block, 8); } // ramp nos 1ºs 9 blocos, depois platô
+function evoWeekIndexFromStart(){
+  const start = new Date(LS.evoStart()+'T00:00:00');
+  const now = new Date();
+  const daysSince = Math.floor((now - start) / 86400000);
+  return Math.max(0, Math.floor(daysSince/7));
+}
+function evoPhaseLabel(weekInBlock){
+  return ['Semana 1 · Acúmulo','Semana 2 · Acúmulo','Semana 3 · Intensificação','Semana 4 · Deload'][weekInBlock];
+}
+function evoWeekMeta(weekIndex){
+  const cycleWeek = weekIndex % EVO_YEAR_WEEKS;
+  const block = Math.floor(cycleWeek / EVO_MESO_LEN);
+  const weekInBlock = cycleWeek % EVO_MESO_LEN;
+  const yearNum = Math.floor(weekIndex / EVO_YEAR_WEEKS) + 1;
+  return { cycleWeek, block, weekInBlock, yearNum, mult: evoBlockMultiplier(block)*EVO_WEEK_MULT[weekInBlock], isDeload: weekInBlock===3 };
+}
+function evoTargets(weekIndex){
+  const base = muscleVolume();
+  const meta = evoWeekMeta(weekIndex);
+  const targets = {};
+  Object.keys(base).forEach(mg=>{ targets[mg] = Math.max(1, Math.round(base[mg]*meta.mult)); });
+  return { targets, meta, base };
+}
+
+function renderEvolucao(){
+  const weekIndex = evoWeekIndexFromStart();
+  const { targets, meta, base } = evoTargets(weekIndex);
+  const maxTarget = Math.max(1, ...Object.values(targets));
+  const rows = MG_ORDER.filter(g=>base[g]).map(g=>{
+    const t=targets[g], b=base[g], delta=t-b;
+    const deltaTxt = delta===0?'baseline' : (delta>0?`+${delta}`:`${delta}`);
+    const deltaColor = delta>0?'var(--amber)' : delta<0?'var(--indigo)':'var(--muted)';
+    const w=Math.round(t/maxTarget*100);
+    return `<div class="mrow"><div class="mrow-top"><span class="mn">${g}</span><span class="mv"><b>${t}</b> séries/sem <span style="color:${deltaColor};font-size:10px;margin-left:4px">(${deltaTxt})</span></span></div><div class="mbar"><span style="width:100%;background:var(--surface2)"></span><span style="width:${w}%;background:${MG_COLOR[g]}"></span></div></div>`;
+  }).join('');
+
+  const cells=[];
+  for(let w=0; w<EVO_YEAR_WEEKS; w++){
+    const m = evoWeekMeta(w);
+    let cls = m.isDeload ? 'deload' : ['acc1','acc2','acc3'][m.weekInBlock];
+    if(w===meta.cycleWeek) cls+=' now'; else if(w<meta.cycleWeek) cls+=' past';
+    cells.push(`<div class="evo-cell ${cls}" title="Semana ${w+1} do ciclo"></div>`);
+  }
+
+  const nextPhaseTxt = meta.isDeload
+    ? 'Você está na semana de deload — reduza volume/intensidade (a meta acima já reflete isso) e priorize técnica, sono e recuperação.'
+    : `Faltam ${3-meta.weekInBlock} semana(s) até o próximo deload.`;
+
+  evoSec.innerHTML = `
+    <div class="day-head"><div class="day-name">Evolução Anual</div><span class="focus">Periodização · ${PLANS[ACTIVE_PLAN].title}</span></div>
+
+    <div class="card">
+      <h4>📅 Onde você está no ciclo</h4>
+      <div class="stat-row">
+        <div class="stat"><b style="color:var(--amber)">${meta.cycleWeek+1}</b><small>Semana do ciclo</small></div>
+        <div class="stat"><b style="color:var(--indigo)">${meta.block+1}/13</b><small>Mesociclo</small></div>
+        <div class="stat"><b style="color:${meta.isDeload?'var(--teal)':'var(--green)'}">${meta.isDeload?'Deload':'Progressão'}</b><small>Fase atual</small></div>
+      </div>
+      <div class="verdict"><b>${evoPhaseLabel(meta.weekInBlock)}.</b> ${nextPhaseTxt}</div>
+    </div>
+
+    <div class="card">
+      <h4>🎯 Meta de séries desta semana <span style="font-size:9px;color:var(--muted);letter-spacing:.04em">(vs. seu plano atual)</span></h4>
+      ${rows || '<div class="m-note">Nenhum volume por grupo detectado no plano ativo.</div>'}
+      <div class="m-note">Baseline = seu plano atual (${PLANS[ACTIVE_PLAN].title}). A meta sobe aos poucos a cada mesociclo e cai no deload — ajuste séries/carga de cada exercício (na aba do dia ou em Grupos) pra ir batendo esses números ao longo do ano.</div>
+    </div>
+
+    <div class="card">
+      <h4>🗓 Panorama do ano <span style="font-size:9px;color:var(--muted);letter-spacing:.04em">(52 semanas · ano ${meta.yearNum})</span></h4>
+      <div class="evo-week-grid">${cells.join('')}</div>
+      <div class="evo-legend"><span><i class="evo-dot acc1"></i>Início do bloco</span><span><i class="evo-dot acc3"></i>Pico de volume</span><span><i class="evo-dot deload"></i>Deload</span></div>
+      <div class="m-note">Cada mesociclo tem 4 semanas: 3 de progressão de volume + 1 de deload pra dissipar fadiga antes do próximo bloco.</div>
+    </div>
+
+    <div class="card">
+      <h4>📖 Base científica</h4>
+      <div class="cref" style="padding:0">Periodização em blocos (acúmulo → intensificação → deload) é a estrutura mais usada em treino de força/hipertrofia pra sustentar progressão de volume ao longo do ano sem estagnar nem acumular fadiga demais. A dupla progressão (reps → carga) de cada exercício continua sendo o motor da progressão dentro da semana — este plano anual só ajusta o volume-alvo (séries/semana) que indica quando vale adicionar mais séries, um exercício extra ou mais frequência.</div>
+    </div>
+
+    <div class="card">
+      <h4>⚙️ Ciclo</h4>
+      <div class="m-note">Início do ciclo: <b style="color:var(--text)">${new Date(LS.evoStart()+'T00:00:00').toLocaleDateString('pt-BR')}</b></div>
+      <button class="mini no" id="evoRestart" style="margin-top:8px">Reiniciar ciclo a partir de hoje</button>
+    </div>
+  `;
 }
 
 /* ============================================================
@@ -1319,19 +1580,24 @@ contentEl.addEventListener('click', e=>{
   if(del){
     const key=del.dataset.exdel;
     const name=del.closest('.ex').querySelector('.ex-name').textContent.trim();
-    if(confirm(`Remover "${name}" do treino? Você pode restaurar depois na aba Geral — nenhuma carga é apagada.`)){
+    if(confirm(`Remover "${name}" do treino? Nenhuma carga é apagada — dá pra desfazer.`)){
       LS.setRemoved(key, true);
       document.querySelectorAll(`[data-exwrap="${key}"]`).forEach(row=> row.remove());
       renderGeral();
-      toast('Exercício removido — restaure na aba Geral');
+      toast('Exercício removido', { actionLabel:'DESFAZER', onAction:()=>{
+        LS.setRemoved(key, false);
+        const activeId = document.querySelector('.tab[aria-selected="true"]')?.dataset.id;
+        if(activeId) select(activeId);
+        toast('Exercício restaurado ✅');
+      }});
     }
     return;
   }
   const res=e.target.closest('[data-exrestore]');
   if(res){
     LS.setRemoved(res.dataset.exrestore, false);
-    toast('Exercício restaurado — recarregando…');
-    setTimeout(()=>location.reload(), 400);
+    renderGeral();
+    toast('Exercício restaurado ✅');
     return;
   }
   const tr=e.target.closest('[data-tr]');
@@ -1362,7 +1628,58 @@ contentEl.addEventListener('click', e=>{
     sb.auth.signOut().then(()=>{ cloudUser=null; renderGeral(); toast('Você saiu da conta — dados continuam salvos neste aparelho'); });
     return;
   }
+  const catChip=e.target.closest('.cat-chip');
+  if(catChip){
+    gruposState.category = catChip.dataset.cat;
+    document.querySelectorAll('.cat-chip').forEach(c=>c.classList.toggle('on', c===catChip));
+    renderGruposResults();
+    return;
+  }
+  if(e.target.id==='addExBtn'){ gruposState.showAddForm=true; renderGrupos(); return; }
+  if(e.target.id==='cancelNewEx'){ gruposState.showAddForm=false; renderGrupos(); return; }
+  if(e.target.id==='saveNewEx'){ addCustomExercise(); return; }
+  if(e.target.id==='evoRestart'){
+    if(confirm('Reiniciar o ciclo de periodização a partir de hoje? Você volta pra semana 1 do mesociclo 1.')){
+      LS.setEvoStart(new Date().toISOString().slice(0,10));
+      renderEvolucao();
+      toast('Ciclo reiniciado 🔄');
+    }
+    return;
+  }
 });
+
+// entrada de busca da aba Grupos — só troca o container de resultados, preserva o foco do campo
+contentEl.addEventListener('input', e=>{
+  if(e.target.id==='gruposSearch'){
+    gruposState.search = e.target.value;
+    renderGruposResults();
+  }
+});
+
+// cria um exercício personalizado (aba Grupos) e injeta no dia escolhido
+function addCustomExercise(){
+  const nameInp = document.getElementById('newExName');
+  const mgSel = document.getElementById('newExMg');
+  const daySel = document.getElementById('newExDay');
+  const srInp = document.getElementById('newExSr');
+  const cargaInp = document.getElementById('newExCarga');
+  const name = nameInp.value.trim();
+  const sr = srInp.value.trim();
+  if(!name){ toast('Digite o nome do exercício'); nameInp.focus(); return; }
+  if(!sr){ toast('Digite séries×reps (ex: 3×12)'); srInp.focus(); return; }
+  const dayId = daySel.value;
+  const item = { ex:name, id:'custom-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), sr };
+  if(mgSel.value) item.mg = mgSel.value;
+  const carga = cargaInp.value.trim();
+  if(carga) item.carga = carga;
+  const list = getCustomItems(dayId);
+  list.push(item);
+  saveCustomItems(dayId, list);
+  gruposState.showAddForm = false;
+  renderGrupos();
+  renderGeral();
+  toast('Exercício adicionado ✅');
+}
 
 // cria conta ou faz login por email/senha, com feedback na própria tela
 async function acctAuth(kind){
@@ -1405,6 +1722,14 @@ contentEl.addEventListener('change', e=>{
     chip.classList.toggle('edited', inp.value.trim()!==def && inp.value.trim()!=='');
     chip.classList.toggle('def', false);
     toast('Carga salva 💾');
+    return;
+  }
+  if(e.target.classList.contains('sr-input')){
+    const inp=e.target, chip=inp.closest('.chip.sr'), key=chip.dataset.srkey;
+    const val=inp.value.trim(), def=inp.dataset.default;
+    if(val===''){ inp.value=def; LS.setSr(key,null); chip.classList.remove('edited'); }
+    else { LS.setSr(key, val); chip.classList.toggle('edited', val!==def); }
+    toast('Séries×reps salvo 💾');
   }
 });
 // edição do nome do exercício (contenteditable, salva ao sair do campo)
@@ -1419,7 +1744,7 @@ contentEl.addEventListener('focusout', e=>{
   }
 });
 contentEl.addEventListener('focusin', e=>{
-  if(e.target.classList.contains('load-input')){ e.target.select(); return; }
+  if(e.target.classList.contains('load-input') || e.target.classList.contains('sr-input')){ e.target.select(); return; }
   if(e.target.classList.contains('ex-name')){
     const range=document.createRange(); range.selectNodeContents(e.target);
     const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
@@ -1427,7 +1752,7 @@ contentEl.addEventListener('focusin', e=>{
 });
 // Enter confirma
 contentEl.addEventListener('keydown', e=>{
-  if(e.target.classList.contains('load-input') && e.key==='Enter'){ e.preventDefault(); e.target.blur(); }
+  if((e.target.classList.contains('load-input') || e.target.classList.contains('sr-input')) && e.key==='Enter'){ e.preventDefault(); e.target.blur(); }
   if(e.target.classList.contains('ex-name') && e.key==='Enter'){ e.preventDefault(); e.target.blur(); }
 });
 
@@ -1436,6 +1761,7 @@ function select(id){
   document.querySelectorAll('.day').forEach(s=> s.classList.toggle('active', s.id==='day-'+id));
   if(id==='geral') renderGeral();
   else if(id==='grupos') renderGrupos();
+  else if(id==='evolucao') renderEvolucao();
   else {
     // dias de treino/descanso são sempre remontados na hora, a partir do LS —
     // garante que nunca fiquem desatualizados em relação à aba Grupos.
